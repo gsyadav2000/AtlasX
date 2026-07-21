@@ -12,6 +12,7 @@ class ChromosomeIndex:
 
     def build(self):
 
+        # Group genes by chromosome
         for gene in self.genes:
 
             chromosome = gene.chromosome
@@ -20,6 +21,13 @@ class ChromosomeIndex:
                 self.index[chromosome] = []
 
             self.index[chromosome].append(gene)
+
+        # Sort genes on every chromosome by TSS
+        for chromosome in self.index:
+
+            self.index[chromosome].sort(
+                key=lambda gene: gene.tss
+            )
 
         print("=" * 50)
         print("Chromosome Index")

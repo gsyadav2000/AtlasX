@@ -2,6 +2,9 @@
 AtlasX Nearby Gene Finder
 """
 
+from bisect import bisect_left, bisect_right
+
+
 class NearbyGeneFinder:
 
     def __init__(self, chromosome_index):
@@ -15,12 +18,19 @@ class NearbyGeneFinder:
         if chromosome not in self.chromosome_index:
             return []
 
-        nearby = []
+        genes = self.chromosome_index[chromosome]
 
-        for gene in self.chromosome_index[chromosome]:
+        # List of sorted TSS positions
+        tss_positions = [gene.tss for gene in genes]
 
-            if gene.tss >= peak.start - window and gene.tss <= peak.end + window:
+        left = bisect_left(
+            tss_positions,
+            peak.start - window
+        )
 
-                nearby.append(gene)
+        right = bisect_right(
+            tss_positions,
+            peak.end + window
+        )
 
-        return nearby
+        return genes[left:right]
