@@ -1,5 +1,7 @@
 import os
 
+import pandas as pd
+
 from atlasx.loader.atac_loader import ATACLoader
 from atlasx.database.gene_database import GeneDatabase
 from atlasx.database.chromosome_index import ChromosomeIndex
@@ -35,31 +37,31 @@ annotations = annotator.annotate_dataset(
 )
 
 # =====================================================
-# Assertions
+# Annotation Tests
 # =====================================================
 
-assert isinstance(annotations, list), \
-    "Annotations should be returned as a list."
+assert isinstance(
+    annotations,
+    list
+), "Annotations should be returned as a list."
 
-assert len(annotations) > 0, \
-    "No annotations were produced."
+assert len(
+    annotations
+) > 0, "No annotations were produced."
 
 first = annotations[0]
 
-assert "peak" in first, \
-    "Missing 'peak' field."
+assert "peak" in first
+assert "gene" in first
+assert "distance" in first
 
-assert "gene" in first, \
-    "Missing 'gene' field."
-
-assert "distance" in first, \
-    "Missing 'distance' field."
-
-assert isinstance(first["distance"], int), \
-    "Distance should be an integer."
+assert isinstance(
+    first["distance"],
+    int
+)
 
 # =====================================================
-# Test CSV Export
+# CSV Export Test
 # =====================================================
 
 csv_file = "annotations.csv"
@@ -69,15 +71,43 @@ annotator.to_csv(
     csv_file
 )
 
-assert os.path.exists(csv_file), \
-    "CSV file was not created."
+assert os.path.exists(
+    csv_file
+), "CSV file was not created."
+
+# =====================================================
+# DataFrame Export Test
+# =====================================================
+
+df = annotator.to_dataframe(
+    annotations
+)
+
+assert isinstance(
+    df,
+    pd.DataFrame
+), "Returned object is not a DataFrame."
+
+assert len(df) == len(
+    annotations
+), "DataFrame row count is incorrect."
+
+assert list(df.columns) == [
+    "peak",
+    "gene",
+    "distance"
+], "Unexpected DataFrame columns."
+
+# =====================================================
+# Success
+# =====================================================
 
 print("\nAll tests passed successfully!\n")
 
-print(f"Total annotations: {len(annotations)}")
-print(f"CSV file created: {csv_file}")
+print(f"Total annotations : {len(annotations)}")
+print(f"CSV file          : {csv_file}")
+print(f"DataFrame Shape   : {df.shape}")
 
-print("\nFirst 10 annotations:\n")
+print("\nFirst 5 DataFrame rows:\n")
 
-for row in annotations[:10]:
-    print(row)
+print(df.head())

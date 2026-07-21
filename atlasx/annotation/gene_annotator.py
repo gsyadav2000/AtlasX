@@ -7,6 +7,8 @@ Provides utilities to annotate ATAC-seq peaks with nearby genes.
 import csv
 from typing import List
 
+import pandas as pd
+
 from atlasx.core.peak import Peak
 from atlasx.database.nearby_gene_finder import NearbyGeneFinder
 
@@ -34,19 +36,6 @@ class GeneAnnotator:
     ) -> List[dict]:
         """
         Annotate a single genomic peak.
-
-        Parameters
-        ----------
-        peak_string : str
-            Peak in the format 'chr:start-end'.
-
-        window : int
-            Search window around the peak.
-
-        Returns
-        -------
-        list[dict]
-            List of nearby gene annotations.
         """
 
         peak = Peak.from_string(peak_string)
@@ -59,7 +48,6 @@ class GeneAnnotator:
         annotations = []
 
         for gene in genes:
-
             annotations.append(
                 {
                     "peak": peak_string,
@@ -77,19 +65,6 @@ class GeneAnnotator:
     ) -> List[dict]:
         """
         Annotate multiple genomic peaks.
-
-        Parameters
-        ----------
-        peaks : list[str]
-            List of peak strings.
-
-        window : int
-            Search window around each peak.
-
-        Returns
-        -------
-        list[dict]
-            Combined annotations.
         """
 
         results = []
@@ -123,14 +98,6 @@ class GeneAnnotator:
     ) -> None:
         """
         Save annotations to a CSV file.
-
-        Parameters
-        ----------
-        annotations : list[dict]
-            Annotation records.
-
-        filename : str
-            Output CSV filename.
         """
 
         with open(filename, "w", newline="", encoding="utf-8") as csv_file:
@@ -148,3 +115,31 @@ class GeneAnnotator:
             writer.writerows(annotations)
 
         print(f"\nSaved {len(annotations):,} annotations to '{filename}'")
+
+    def to_dataframe(
+        self,
+        annotations: List[dict]
+    ) -> pd.DataFrame:
+        """
+        Convert annotations to a pandas DataFrame.
+
+        Parameters
+        ----------
+        annotations : list[dict]
+            Annotation records.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Annotation table.
+        """
+
+        dataframe = pd.DataFrame(annotations)
+
+        print(
+            f"\nCreated DataFrame with "
+            f"{len(dataframe):,} rows "
+            f"and {len(dataframe.columns)} columns."
+        )
+
+        return dataframe
