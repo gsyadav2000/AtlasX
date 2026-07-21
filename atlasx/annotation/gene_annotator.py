@@ -4,6 +4,7 @@ AtlasX Gene Annotator
 Provides utilities to annotate ATAC-seq peaks with nearby genes.
 """
 
+import csv
 from typing import List
 
 from atlasx.core.peak import Peak
@@ -114,3 +115,36 @@ class GeneAnnotator:
         print("=" * 60)
 
         return results
+
+    def to_csv(
+        self,
+        annotations: List[dict],
+        filename: str
+    ) -> None:
+        """
+        Save annotations to a CSV file.
+
+        Parameters
+        ----------
+        annotations : list[dict]
+            Annotation records.
+
+        filename : str
+            Output CSV filename.
+        """
+
+        with open(filename, "w", newline="", encoding="utf-8") as csv_file:
+
+            writer = csv.DictWriter(
+                csv_file,
+                fieldnames=[
+                    "peak",
+                    "gene",
+                    "distance"
+                ]
+            )
+
+            writer.writeheader()
+            writer.writerows(annotations)
+
+        print(f"\nSaved {len(annotations):,} annotations to '{filename}'")

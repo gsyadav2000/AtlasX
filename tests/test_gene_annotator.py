@@ -1,9 +1,10 @@
+import os
+
 from atlasx.loader.atac_loader import ATACLoader
 from atlasx.database.gene_database import GeneDatabase
 from atlasx.database.chromosome_index import ChromosomeIndex
 from atlasx.database.nearby_gene_finder import NearbyGeneFinder
 from atlasx.annotation.gene_annotator import GeneAnnotator
-
 
 print("Loading ATAC dataset...")
 
@@ -57,9 +58,26 @@ assert "distance" in first, \
 assert isinstance(first["distance"], int), \
     "Distance should be an integer."
 
+# =====================================================
+# Test CSV Export
+# =====================================================
+
+csv_file = "annotations.csv"
+
+annotator.to_csv(
+    annotations,
+    csv_file
+)
+
+assert os.path.exists(csv_file), \
+    "CSV file was not created."
+
 print("\nAll tests passed successfully!\n")
 
-print(f"Total annotations: {len(annotations)}\n")
+print(f"Total annotations: {len(annotations)}")
+print(f"CSV file created: {csv_file}")
+
+print("\nFirst 10 annotations:\n")
 
 for row in annotations[:10]:
     print(row)
