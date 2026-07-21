@@ -19,14 +19,6 @@ class GeneAnnotator:
     """
 
     def __init__(self, finder: NearbyGeneFinder):
-        """
-        Initialize the annotator.
-
-        Parameters
-        ----------
-        finder : NearbyGeneFinder
-            Finder used to identify nearby genes.
-        """
         self.finder = finder
 
     def annotate_peak(
@@ -122,16 +114,6 @@ class GeneAnnotator:
     ) -> pd.DataFrame:
         """
         Convert annotations to a pandas DataFrame.
-
-        Parameters
-        ----------
-        annotations : list[dict]
-            Annotation records.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Annotation table.
         """
 
         dataframe = pd.DataFrame(annotations)
@@ -143,3 +125,40 @@ class GeneAnnotator:
         )
 
         return dataframe
+
+    def filter_by_distance(
+        self,
+        annotations: List[dict],
+        max_distance: int
+    ) -> List[dict]:
+        """
+        Keep only annotations whose distance is less than or equal to
+        the specified maximum distance.
+
+        Parameters
+        ----------
+        annotations : list[dict]
+            Annotation records.
+
+        max_distance : int
+            Maximum allowed genomic distance.
+
+        Returns
+        -------
+        list[dict]
+            Filtered annotations.
+        """
+
+        filtered = [
+            annotation
+            for annotation in annotations
+            if annotation["distance"] <= max_distance
+        ]
+
+        print(
+            f"\nFiltered annotations: "
+            f"{len(filtered):,}/{len(annotations):,} "
+            f"within {max_distance:,} bp."
+        )
+
+        return filtered

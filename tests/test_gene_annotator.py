@@ -99,15 +99,41 @@ assert list(df.columns) == [
 ], "Unexpected DataFrame columns."
 
 # =====================================================
+# Distance Filter Test
+# =====================================================
+
+max_distance = 50000
+
+filtered = annotator.filter_by_distance(
+    annotations,
+    max_distance=max_distance
+)
+
+assert isinstance(
+    filtered,
+    list
+), "Filtered result should be a list."
+
+assert len(filtered) <= len(
+    annotations
+), "Filtering increased the number of annotations."
+
+for annotation in filtered:
+    assert (
+        annotation["distance"] <= max_distance
+    ), "Found annotation beyond maximum distance."
+
+# =====================================================
 # Success
 # =====================================================
 
 print("\nAll tests passed successfully!\n")
 
-print(f"Total annotations : {len(annotations)}")
-print(f"CSV file          : {csv_file}")
-print(f"DataFrame Shape   : {df.shape}")
+print(f"Total annotations    : {len(annotations)}")
+print(f"Filtered annotations : {len(filtered)}")
+print(f"CSV file             : {csv_file}")
+print(f"DataFrame Shape      : {df.shape}")
 
-print("\nFirst 5 DataFrame rows:\n")
+print("\nFirst 5 filtered annotations:\n")
 
-print(df.head())
+print(filtered[:5])
