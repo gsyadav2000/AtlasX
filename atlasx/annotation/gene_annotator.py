@@ -1,17 +1,52 @@
 """
 AtlasX Gene Annotator
+
+Provides utilities to annotate ATAC-seq peaks with nearby genes.
 """
 
+from typing import List
+
 from atlasx.core.peak import Peak
+from atlasx.database.nearby_gene_finder import NearbyGeneFinder
 
 
 class GeneAnnotator:
+    """
+    Annotates genomic peaks with nearby genes.
+    """
 
-    def __init__(self, finder):
+    def __init__(self, finder: NearbyGeneFinder):
+        """
+        Initialize the annotator.
 
+        Parameters
+        ----------
+        finder : NearbyGeneFinder
+            Finder used to identify nearby genes.
+        """
         self.finder = finder
 
-    def annotate_peak(self, peak_string, window=100000):
+    def annotate_peak(
+        self,
+        peak_string: str,
+        window: int = 100000
+    ) -> List[dict]:
+        """
+        Annotate a single genomic peak.
+
+        Parameters
+        ----------
+        peak_string : str
+            Peak in the format 'chr:start-end'.
+
+        window : int
+            Search window around the peak.
+
+        Returns
+        -------
+        list[dict]
+            List of nearby gene annotations.
+        """
 
         peak = Peak.from_string(peak_string)
 
@@ -34,7 +69,27 @@ class GeneAnnotator:
 
         return annotations
 
-    def annotate_dataset(self, peaks, window=100000):
+    def annotate_dataset(
+        self,
+        peaks: List[str],
+        window: int = 100000
+    ) -> List[dict]:
+        """
+        Annotate multiple genomic peaks.
+
+        Parameters
+        ----------
+        peaks : list[str]
+            List of peak strings.
+
+        window : int
+            Search window around each peak.
+
+        Returns
+        -------
+        list[dict]
+            Combined annotations.
+        """
 
         results = []
 

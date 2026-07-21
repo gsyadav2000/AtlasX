@@ -4,6 +4,7 @@ from atlasx.database.chromosome_index import ChromosomeIndex
 from atlasx.database.nearby_gene_finder import NearbyGeneFinder
 from atlasx.annotation.gene_annotator import GeneAnnotator
 
+
 print("Loading ATAC dataset...")
 
 loader = ATACLoader(
@@ -32,7 +33,33 @@ annotations = annotator.annotate_dataset(
     dataset.peaks[:5]
 )
 
-print(f"\nTotal annotations: {len(annotations)}\n")
+# =====================================================
+# Assertions
+# =====================================================
+
+assert isinstance(annotations, list), \
+    "Annotations should be returned as a list."
+
+assert len(annotations) > 0, \
+    "No annotations were produced."
+
+first = annotations[0]
+
+assert "peak" in first, \
+    "Missing 'peak' field."
+
+assert "gene" in first, \
+    "Missing 'gene' field."
+
+assert "distance" in first, \
+    "Missing 'distance' field."
+
+assert isinstance(first["distance"], int), \
+    "Distance should be an integer."
+
+print("\nAll tests passed successfully!\n")
+
+print(f"Total annotations: {len(annotations)}\n")
 
 for row in annotations[:10]:
     print(row)
