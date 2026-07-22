@@ -1,106 +1,137 @@
 # AtlasX
 
-> **An AI-powered framework for single-cell ATAC-seq analysis and regulatory genomics.**
+AtlasX is an open-source Python toolkit for genomic peak annotation and downstream analysis.
+
+It is designed to provide a modular framework for working with genomic datasets, including scATAC-seq and other peak-based experiments.
 
 ---
 
-## Overview
+## Features
 
-AtlasX is an open-source Python framework designed for the analysis of single-cell ATAC-seq data. The goal of AtlasX is to build a fast, scalable, and biologically meaningful platform for regulatory genomics.
+Current features include:
 
-The framework provides tools for:
-
-- Parsing genome annotations
-- Processing scATAC-seq datasets
-- Identifying nearby genes
-- Regulatory scoring
-- Building regulatory networks
-- Future AI-powered cell annotation
+- Load ATAC-seq datasets
+- Parse GENCODE GTF annotation files
+- Chromosome-based gene indexing
+- Efficient nearby gene searching
+- Peak-to-gene annotation
+- Distance calculation between peaks and genes
+- CSV export
+- Pandas DataFrame export
+- Distance-based annotation filtering
 
 ---
 
-## Current Features
+## Installation
 
-- ✅ Peak representation
-- ✅ Gene representation
-- ✅ Genome representation
-- ✅ Dataset management
-- ✅ GENCODE annotation parser
-- ✅ Chromosome indexing
-- ✅ Nearby gene finder
-- ✅ Regulatory scoring
-- ✅ scATAC-seq data loader
+Install directly from GitHub:
+
+```bash
+python -m pip install git+https://github.com/gsyadav2000/AtlasX.git
+```
+
+---
+
+## Quick Start
+
+```python
+from atlasx.loader.atac_loader import ATACLoader
+from atlasx.database.gene_database import GeneDatabase
+from atlasx.database.chromosome_index import ChromosomeIndex
+from atlasx.database.nearby_gene_finder import NearbyGeneFinder
+from atlasx.annotation.gene_annotator import GeneAnnotator
+
+loader = ATACLoader(
+    "data/raw/atac_v1_pbmc_10k_filtered_peak_bc_matrix.h5"
+)
+
+dataset = loader.load()
+
+database = GeneDatabase(
+    "data/reference/gencode.v47.basic.annotation.gtf"
+)
+
+genes = database.load()
+
+index = ChromosomeIndex(genes).build()
+
+finder = NearbyGeneFinder(index)
+
+annotator = GeneAnnotator(finder)
+
+annotations = annotator.annotate_dataset(dataset.peaks[:100])
+
+annotator.to_csv(
+    annotations,
+    "annotations.csv"
+)
+```
 
 ---
 
 ## Project Structure
 
-```text
+```
 AtlasX/
 │
 ├── atlasx/
+│   ├── annotation/
 │   ├── core/
 │   ├── database/
 │   ├── loader/
-│   ├── graph/
-│   ├── preprocessing/
-│   ├── models/
-│   ├── scoring/
 │   └── utils/
 │
 ├── tests/
+├── data/
 ├── README.md
-├── LICENSE
 ├── pyproject.toml
 └── requirements.txt
 ```
 
 ---
 
-## Installation
+## Roadmap
 
-```bash
-git clone https://github.com/gsyadav2000/AtlasX.git
+### Completed
 
-cd AtlasX
-
-pip install -r requirements.txt
-```
-
----
-
-## Development Roadmap
-
-### Version 0.1
-- Core genomics engine
-- Peak and gene classes
-- Dataset loader
+- Dataset loading
+- GTF parser
+- Gene database
+- Chromosome indexing
 - Nearby gene search
+- Peak annotation
+- CSV export
+- DataFrame export
+- Distance filtering
+- Installable Python package
 
-### Version 0.2
-- Faster chromosome-indexed search
-- Improved annotation engine
+### Planned
 
-### Version 0.3
-- Promoter annotation
-- Enhancer annotation
-- Regulatory graph
-
-### Future Versions
-- Machine Learning
-- Deep Learning
-- Foundation AI model for regulatory genomics
-
----
-
-## Author
-
-**Ghanshyam Yadav**
-
-GitHub: https://github.com/gsyadav2000
+- BED file support
+- Command-line interface
+- Gene Ontology analysis
+- Pathway analysis
+- Peak visualization
+- PyPI release
 
 ---
 
 ## License
 
 MIT License
+
+---
+
+## Author
+
+Ghanshyam Yadav
+
+CSIR-UGC NET JRF
+
+IIIT-Delhi
+
+---
+
+## Citation
+
+If AtlasX contributes to your research, please cite the GitHub repository until a formal publication is available.
