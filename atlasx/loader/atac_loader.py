@@ -9,6 +9,7 @@ import h5py
 from scipy.sparse import csc_matrix
 
 from atlasx.core.dataset import AtlasXDataset
+from atlasx.core.peak import Peak
 
 
 class ATACLoader:
@@ -31,7 +32,9 @@ class ATACLoader:
             shape = tuple(matrix["shape"][:])
 
             peaks = [
-                x.decode("utf-8")
+                Peak.from_string(
+                    x.decode("utf-8")
+                )
                 for x in matrix["features"]["name"][:]
             ]
 
