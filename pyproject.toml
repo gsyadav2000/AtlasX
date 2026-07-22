@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "atlasx"
+version = "0.6.0"
+description = "A Python toolkit for genomic peak annotation and downstream analysis."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+authors = [
+    { name = "Ghanshyam Yadav" }
+]
+
+keywords = [
+    "bioinformatics",
+    "genomics",
+    "ATAC-seq",
+    "scATAC-seq",
+    "annotation",
+    "genome"
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Bio-Informatics"
+]
+
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "anndata",
+    "h5py"
+]
+
+[tool.setuptools.packages.find]
+include = ["atlasx*"]
