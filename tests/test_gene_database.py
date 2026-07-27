@@ -1,4 +1,6 @@
-from atlasx.annotation.gene_database import GeneDatabase
+from atlasx.database.gene_database import GeneDatabase
+
+print("Loading GENCODE annotation...")
 
 db = GeneDatabase(
     "data/reference/gencode.v47.basic.annotation.gtf"

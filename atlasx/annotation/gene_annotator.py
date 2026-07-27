@@ -23,14 +23,12 @@ class GeneAnnotator:
 
     def annotate_peak(
         self,
-        peak_string: str,
+        peak: Peak,
         window: int = 100000
     ) -> List[dict]:
         """
         Annotate a single genomic peak.
         """
-
-        peak = Peak.from_string(peak_string)
 
         genes = self.finder.find(
             peak,
@@ -42,7 +40,7 @@ class GeneAnnotator:
         for gene in genes:
             annotations.append(
                 {
-                    "peak": peak_string,
+                    "peak": str(peak),
                     "gene": gene.name,
                     "distance": peak.distance_to_gene(gene)
                 }
@@ -52,7 +50,7 @@ class GeneAnnotator:
 
     def annotate_dataset(
         self,
-        peaks: List[str],
+        peaks: List[Peak],
         window: int = 100000
     ) -> List[dict]:
         """
@@ -134,19 +132,6 @@ class GeneAnnotator:
         """
         Keep only annotations whose distance is less than or equal to
         the specified maximum distance.
-
-        Parameters
-        ----------
-        annotations : list[dict]
-            Annotation records.
-
-        max_distance : int
-            Maximum allowed genomic distance.
-
-        Returns
-        -------
-        list[dict]
-            Filtered annotations.
         """
 
         filtered = [

@@ -1,5 +1,6 @@
-from atlasx.core.peak import Peak
 from atlasx.loader.atac_loader import ATACLoader
+
+print("Loading ATAC dataset...")
 
 loader = ATACLoader(
     "data/raw/atac_v1_pbmc_10k_filtered_peak_bc_matrix.h5"
@@ -7,6 +8,12 @@ loader = ATACLoader(
 
 dataset = loader.load()
 
-peak = Peak.from_string(dataset.peaks[0])
+# dataset.peaks already contains Peak objects
+peak = dataset.peaks[0]
+
+print()
+
+print("First Peak")
+print("-" * 50)
 
 peak.summary()

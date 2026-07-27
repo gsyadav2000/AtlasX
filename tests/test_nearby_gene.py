@@ -2,7 +2,6 @@ from atlasx.loader.atac_loader import ATACLoader
 from atlasx.database.gene_database import GeneDatabase
 from atlasx.database.chromosome_index import ChromosomeIndex
 from atlasx.database.nearby_gene_finder import NearbyGeneFinder
-from atlasx.core.peak import Peak
 
 print("Loading ATAC dataset...")
 
@@ -26,7 +25,8 @@ index = ChromosomeIndex(genes).build()
 
 finder = NearbyGeneFinder(index)
 
-peak = Peak.from_string(dataset.peaks[0])
+# dataset.peaks already contains Peak objects
+peak = dataset.peaks[0]
 
 print("\nSearching nearby genes...\n")
 

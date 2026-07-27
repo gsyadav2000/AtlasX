@@ -3,3 +3,4 @@ pandas
 scipy
 anndata
 h5py
+pytest

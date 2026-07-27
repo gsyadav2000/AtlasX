@@ -19,6 +19,7 @@ class Peak:
     def from_string(cls, peak_string):
         """
         Convert:
+
         chr1:565107-565550
 
         into
@@ -39,10 +40,33 @@ class Peak:
             end=int(end)
         )
 
+    def overlaps(self, other):
+        """
+        Return True if two peaks overlap.
+        """
+
+        if self.chromosome != other.chromosome:
+            return False
+
+        return not (
+            self.end < other.start or
+            other.end < self.start
+        )
+
+    def distance_to(self, position):
+        """
+        Distance from the center of the peak
+        to a genomic position.
+        """
+
+        center = (self.start + self.end) // 2
+
+        return abs(center - position)
+
     def distance_to_gene(self, gene):
         """
         Calculate the distance from the center of the peak
-        to the Transcription Start Site (TSS) of a gene.
+        to the transcription start site (TSS) of a gene.
         """
 
         if self.chromosome != gene.chromosome:

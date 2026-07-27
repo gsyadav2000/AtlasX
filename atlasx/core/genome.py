@@ -2,13 +2,15 @@
 AtlasX Genome Object
 """
 
-from dataclasses import dataclass
 from collections import Counter
+from dataclasses import dataclass
+
+from atlasx.core.peak import Peak
 
 
 @dataclass
 class Genome:
-    peaks: list
+    peaks: list[Peak]
 
     def chromosome_counts(self):
         """
@@ -18,8 +20,7 @@ class Genome:
         chromosomes = []
 
         for peak in self.peaks:
-            chromosome = peak.split(":")[0]
-            chromosomes.append(chromosome)
+            chromosomes.append(peak.chromosome)
 
         return Counter(chromosomes)
 
@@ -32,7 +33,7 @@ class Genome:
         print("=" * 50)
 
         print(f"Total chromosomes : {len(counts)}")
-        print(f"Total peaks       : {len(self.peaks)}")
+        print(f"Total peaks       : {len(self.peaks):,}")
 
         print("\nTop 10 chromosomes:\n")
 
