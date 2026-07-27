@@ -7,10 +7,11 @@ from atlasx.core.gene import Gene
 
 class GeneDatabase:
 
-    def __init__(self, gtf_file):
+    def __init__(self, gtf_file, protein_coding_only=False):
 
         self.gtf_file = gtf_file
         self.genes = []
+        self.protein_coding_only = protein_coding_only
 
     def load(self):
 
@@ -41,17 +42,22 @@ class GeneDatabase:
                 attributes = fields[8]
 
                 gene_name = None
+                gene_type = None
 
                 for item in attributes.split(";"):
 
                     item = item.strip()
 
                     if item.startswith("gene_name"):
-
                         gene_name = item.split('"')[1]
-                        break
+
+                    elif item.startswith("gene_type"):
+                        gene_type = item.split('"')[1]
 
                 if gene_name is None:
+                    continue
+
+                if self.protein_coding_only and gene_type != "protein_coding":
                     continue
 
                 gene = Gene(
