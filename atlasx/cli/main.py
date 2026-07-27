@@ -5,8 +5,9 @@ AtlasX Command Line Interface
 import argparse
 
 from atlasx.loader.atac_loader import ATACLoader
+from atlasx.database.gene_database import GeneDatabase
 
-VERSION = "0.13.0"
+VERSION = "0.14.0"
 
 
 def dataset_summary(args):
@@ -26,7 +27,7 @@ def dataset_summary(args):
 
 
 def show_version(args):
-    """Display AtlasX version information."""
+    """Display AtlasX version."""
 
     print()
     print("=" * 40)
@@ -55,6 +56,30 @@ def show_peaks(args):
             f"{i:>3}. "
             f"{peak.chromosome}:{peak.start}-{peak.end}"
         )
+
+    print("=" * 50)
+
+
+def show_genes(args):
+    """Display the first N genes."""
+
+    db = GeneDatabase(args.file)
+    genes = db.load()
+
+    print()
+    print("=" * 50)
+    print(f"First {args.number} Genes")
+    print("=" * 50)
+
+    limit = min(args.number, len(genes))
+
+    for i, gene in enumerate(genes[:limit], start=1):
+
+        print(f"{i:>3}. {gene.name}")
+        print(
+            f"     {gene.chromosome}:{gene.start}-{gene.end} ({gene.strand})"
+        )
+        print()
 
     print("=" * 50)
 
@@ -117,6 +142,30 @@ def main():
 
     peaks_parser.set_defaults(
         func=show_peaks
+    )
+
+    # ---------------- Genes ---------------- #
+
+    genes_parser = subparsers.add_parser(
+        "genes",
+        help="Display the first N genes"
+    )
+
+    genes_parser.add_argument(
+        "file",
+        help="Path to GTF annotation"
+    )
+
+    genes_parser.add_argument(
+        "-n",
+        "--number",
+        type=int,
+        default=10,
+        help="Number of genes to display"
+    )
+
+    genes_parser.set_defaults(
+        func=show_genes
     )
 
     args = parser.parse_args()

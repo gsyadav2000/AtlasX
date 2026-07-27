@@ -10,7 +10,6 @@ loader = ATACLoader(
 )
 dataset = loader.load()
 
-print("Loading GENCODE annotation...")
 db = GeneDatabase(
     "data/reference/gencode.v47lift37.basic.annotation.gtf",
     protein_coding_only=True
@@ -20,7 +19,6 @@ genes = db.load()
 index = ChromosomeIndex(genes).build()
 finder = NearbyGeneFinder(index)
 
-# Sanity check: is cell 0 a typical cell, or a low-depth outlier?
 cell_depths = dataset.matrix.getnnz(axis=0)
 cell_index = 0
 
@@ -38,9 +36,12 @@ top_n = 2000
 print(f"\nComputing gene enrichment for cell {cell_index}...\n")
 top_genes = scorer.enrich(cell_index, top_n=top_n, top_genes=20)
 
-print("=" * 50)
+print("=" * 60)
 print(f"Top enriched genes for cell {cell_index}")
-print("=" * 50)
+print("=" * 60)
 
-for gene, p_value in top_genes:
-    print(f"{gene:15} p = {p_value:.2e}")
+for gene, p_value, p_adjusted in top_genes:
+    flag = "*" if p_adjusted < 0.05 else " "
+    print(f"{flag} {gene:15} p = {p_value:.2e}   p_adj = {p_adjusted:.3f}")
+
+print("\n(* = significant after Bonferroni correction, p_adj < 0.05)")
