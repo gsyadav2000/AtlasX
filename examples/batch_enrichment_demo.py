@@ -44,7 +44,7 @@ print("Marker gene set enrichment (hypergeometric test)")
 print("=" * 60)
 
 result = marker_set_enrichment(
-    gene_hit_counts,
+    set(gene_hit_counts.keys()),
     PBMC_IMMUNE_MARKERS,
     scorer.background_counts.keys()
 )
