@@ -11,9 +11,17 @@ enriched gene sets overlap - but applied here within one dataset
 no reference atlas is wired up yet. Similarity is measured with the
 Jaccard index (size of intersection over size of union) between each
 pair of cells' top-N enriched gene sets.
+
+Pairwise similarity is computed via sparse matrix multiplication
+rather than a Python loop over every cell pair, so it scales to
+thousands of cells instead of a few hundred: representing each
+cell's gene set as a row in a binary (cells x genes) matrix, the
+intersection size between every pair of cells is given in a single
+step by matrix @ matrix.T.
 """
 
 import numpy as np
+from scipy.sparse import csr_matrix
 
 
 def build_cell_profiles(scorer, num_cells, top_n=2000, top_genes_per_cell=50):
@@ -41,38 +49,75 @@ def build_cell_profiles(scorer, num_cells, top_n=2000, top_genes_per_cell=50):
     return profiles
 
 
+def _build_gene_universe(profiles):
+
+    gene_universe = set()
+
+    for genes in profiles.values():
+        gene_universe.update(genes)
+
+    return sorted(gene_universe)
+
+
+def _build_profile_matrix(profiles, gene_universe):
+    """
+    Converts profiles into a sparse binary (cells x genes) matrix,
+    with columns ordered by gene_universe. Cell indices in profiles
+    must be a contiguous range starting at 0.
+    """
+
+    gene_to_col = {gene: i for i, gene in enumerate(gene_universe)}
+
+    num_cells = len(profiles)
+    num_genes = len(gene_universe)
+
+    rows = []
+    cols = []
+
+    for cell_index in range(num_cells):
+        for gene in profiles[cell_index]:
+            rows.append(cell_index)
+            cols.append(gene_to_col[gene])
+
+    data = np.ones(len(rows), dtype=np.int32)
+
+    return csr_matrix(
+        (data, (rows, cols)),
+        shape=(num_cells, num_genes)
+    )
+
+
 def jaccard_similarity_matrix(profiles):
     """
     profiles : dict cell_index -> set of gene names, as returned by
                build_cell_profiles. Cell indices must be a contiguous
-               range starting at 0 (as build_cell_profiles produces).
+               range starting at 0.
 
     Returns an (n_cells x n_cells) numpy array of pairwise Jaccard
     similarities (1.0 on the diagonal, symmetric).
     """
 
-    num_cells = len(profiles)
-    matrix = np.zeros((num_cells, num_cells))
+    gene_universe = _build_gene_universe(profiles)
+    profile_matrix = _build_profile_matrix(profiles, gene_universe)
 
-    gene_sets = [profiles[i] for i in range(num_cells)]
+    # Intersection size between every pair of cells: dot product of
+    # binary rows counts shared genes, for every pair at once.
+    intersection = (
+        profile_matrix @ profile_matrix.T
+    ).toarray().astype(np.float64)
 
-    for i in range(num_cells):
+    set_sizes = np.asarray(profile_matrix.sum(axis=1)).flatten()
 
-        matrix[i, i] = 1.0
+    union = set_sizes[:, None] + set_sizes[None, :] - intersection
 
-        for j in range(i + 1, num_cells):
+    with np.errstate(invalid="ignore", divide="ignore"):
+        similarity = np.divide(
+            intersection,
+            union,
+            out=np.zeros_like(intersection),
+            where=union > 0
+        )
 
-            set_i = gene_sets[i]
-            set_j = gene_sets[j]
+    np.fill_diagonal(similarity, 1.0)
 
-            union_size = len(set_i | set_j)
-
-            if union_size == 0:
-                similarity = 0.0
-            else:
-                similarity = len(set_i & set_j) / union_size
-
-            matrix[i, j] = similarity
-            matrix[j, i] = similarity
-
-    return matrix
+    return similarity
