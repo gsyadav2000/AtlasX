@@ -11,21 +11,43 @@ straight reciprocal, since a straight reciprocal over-penalizes real
 markers of abundant cell types just for being common in this
 dataset. Each peak is assigned to its single nearest gene, and peaks
 detected in very few cells are excluded entirely as likely dropout
-noise. Fisher's exact test then finds genes disproportionately
-represented in the foreground versus the background, with a
-Bonferroni-adjusted p-value reported alongside the raw one, since
-thousands of genes are tested per cell.
+noise.
+
+Enrichment significance uses a one-sided binomial test as a fast
+approximation to the exact hypergeometric test (equivalently, a
+one-sided Fisher's exact test), since profiling showed the exact
+test to be the dominant cost (99% of runtime) at this dataset's
+scale. The approximation is only valid when the foreground sample is
+small relative to the background population (sampling without
+replacement becomes statistically indistinguishable from sampling
+with replacement in that regime). To avoid silently giving wrong
+answers outside that regime, enrich() checks the actual sampling
+fraction on every call and automatically falls back to the exact
+hypergeometric test whenever the foreground is not small relative to
+the background (default threshold: 10%) - this matters for small
+datasets or edge cases, not just the common case used here.
+
+A Bonferroni-adjusted p-value is reported alongside the raw one,
+since thousands of genes are tested per cell.
 """
 
 from collections import Counter
 
 import numpy as np
-from scipy.stats import fisher_exact
+from scipy.stats import binom, hypergeom
 
 
 class GeneEnrichmentScorer:
 
-    def __init__(self, peaks, finder, matrix, window=100000, min_cells=5):
+    def __init__(
+        self,
+        peaks,
+        finder,
+        matrix,
+        window=100000,
+        min_cells=5,
+        approximation_fraction_limit=0.1
+    ):
         """
         peaks     : list[Peak] in the same order as the dataset's peak axis
         finder    : NearbyGeneFinder, used to find gene candidates near
@@ -36,6 +58,11 @@ class GeneEnrichmentScorer:
                     the nearest gene found within this radius is kept
         min_cells : peaks detected in fewer than this many cells are
                     excluded entirely, as likely dropout noise
+        approximation_fraction_limit : if foreground_total / background_total
+                    exceeds this fraction, enrich() uses the exact
+                    hypergeometric test instead of the binomial
+                    approximation, since the approximation is not
+                    statistically valid in that regime
         """
 
         self.peaks = peaks
@@ -43,6 +70,7 @@ class GeneEnrichmentScorer:
         self.matrix = matrix
         self.window = window
         self.min_cells = min_cells
+        self.approximation_fraction_limit = approximation_fraction_limit
 
         self.total_cells = matrix.shape[1]
 
@@ -150,30 +178,49 @@ class GeneEnrichmentScorer:
         foreground_counts = Counter(foreground_genes)
         foreground_total = len(foreground_genes)
 
-        results = []
+        gene_names = list(foreground_counts.keys())
+        num_tests = len(gene_names)
 
-        for gene, fg_count in foreground_counts.items():
+        if num_tests == 0:
+            return []
 
-            bg_count = self.background_counts[gene]
+        fg_counts = np.array(
+            [foreground_counts[gene] for gene in gene_names]
+        )
+        bg_counts = np.array(
+            [self.background_counts[gene] for gene in gene_names]
+        )
 
-            table = [
-                [fg_count, bg_count - fg_count],
-                [
-                    foreground_total - fg_count,
-                    self.background_total - bg_count
-                    - (foreground_total - fg_count)
-                ]
-            ]
+        sampling_fraction = (
+            foreground_total / self.background_total
+            if self.background_total > 0 else 1.0
+        )
 
-            _, p_value = fisher_exact(table, alternative="greater")
+        if sampling_fraction <= self.approximation_fraction_limit:
 
-            results.append([gene, p_value])
+            gene_probabilities = bg_counts / self.background_total
 
-        num_tests = len(results)
+            p_values = binom.sf(
+                fg_counts - 1,
+                foreground_total,
+                gene_probabilities
+            )
 
-        for row in results:
-            row.append(min(row[1] * num_tests, 1.0))
+        else:
 
+            # Foreground is too large a fraction of the background for
+            # the binomial approximation to be valid - use the exact
+            # hypergeometric test instead, even though it's slower.
+            p_values = hypergeom.sf(
+                fg_counts - 1,
+                self.background_total,
+                bg_counts,
+                foreground_total
+            )
+
+        p_adjusted = np.minimum(p_values * num_tests, 1.0)
+
+        results = list(zip(gene_names, p_values, p_adjusted))
         results.sort(key=lambda item: item[1])
 
-        return [tuple(row) for row in results[:top_genes]]
+        return results[:top_genes]
