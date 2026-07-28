@@ -1,5 +1,5 @@
+import gc
 import time
-from collections import Counter
 
 import numpy as np
 from scipy.cluster.hierarchy import linkage, fcluster
@@ -62,9 +62,20 @@ print("\nComputing pairwise Jaccard similarity between cells...")
 similarity = jaccard_similarity_matrix(profiles)
 
 print("Running hierarchical clustering...")
-distance_matrix = 1 - similarity
+
+# Reuse the similarity buffer as the distance matrix (1 - similarity)
+# in place, rather than allocating a second full-size array, since
+# this machine has shown it can run low on memory for arrays this
+# size.
+distance_matrix = similarity
+np.subtract(1.0, distance_matrix, out=distance_matrix)
 np.fill_diagonal(distance_matrix, 0)
+
 condensed = squareform(distance_matrix, checks=False)
+
+del distance_matrix, similarity
+gc.collect()
+
 linkage_matrix = linkage(condensed, method="average")
 cluster_labels = fcluster(linkage_matrix, t=num_clusters, criterion="maxclust")
 
@@ -97,10 +108,10 @@ for cluster_id in sorted(set(cluster_labels)):
         if label == cluster_id
     ]
 
-    gene_hit_counts = Counter()
+    gene_hit_counts = {}
     for cell_index in cluster_cell_indices:
         for gene in profiles[cell_index]:
-            gene_hit_counts[gene] += 1
+            gene_hit_counts[gene] = gene_hit_counts.get(gene, 0) + 1
 
     top_ranked_genes = top_genes_by_frequency(
         gene_hit_counts,
@@ -121,9 +132,11 @@ for cluster_id in sorted(set(cluster_labels)):
             continue
 
         flag = " <-- significant" if result["p_value"] < 0.05 else ""
+        hits_display = ", ".join(result["panel_hits"]) if result["panel_hits"] else "none"
         print(
             f"  {lineage_name:10} p = {result['p_value']:.3e}  "
-            f"hits = {result['panel_hit_count']}/{result['panel_size_in_background']}"
+            f"hits = {result['panel_hit_count']}/{result['panel_size_in_background']} "
+            f"({hits_display})"
             f"{flag}"
         )
 
