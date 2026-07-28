@@ -4,10 +4,9 @@ AtlasX Command Line Interface
 
 import argparse
 
+from atlasx import __version__
 from atlasx.loader.atac_loader import ATACLoader
 from atlasx.database.gene_database import GeneDatabase
-
-VERSION = "0.14.0"
 
 
 def dataset_summary(args):
@@ -33,7 +32,7 @@ def show_version(args):
     print("=" * 40)
     print("AtlasX")
     print("=" * 40)
-    print(f"Version : {VERSION}")
+    print(f"Version : {__version__}")
     print("Author  : Ghanshyam Yadav")
     print("=" * 40)
 

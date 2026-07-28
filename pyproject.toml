@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "atlasx"
-version = "0.6.0"
-description = "A Python toolkit for genomic peak annotation and downstream analysis."
+version = "0.15.0"
+description = "A Python toolkit for single-cell ATAC-seq gene enrichment scoring, cell clustering, and reference matching."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -19,8 +19,9 @@ keywords = [
     "genomics",
     "ATAC-seq",
     "scATAC-seq",
-    "annotation",
-    "genome"
+    "single-cell",
+    "gene-enrichment",
+    "clustering"
 ]
 
 classifiers = [

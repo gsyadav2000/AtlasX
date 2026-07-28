@@ -37,11 +37,12 @@ env/
 .ipynb_checkpoints/
 
 # =====================================================
-# Large Datasets
+# Large Datasets and Reference Files
 # =====================================================
 
 data/raw/
 data/processed/
+data/reference/
 
 # =====================================================
 # Generated Output Files
