@@ -14,11 +14,20 @@ pair of cells' top-N enriched gene sets.
 
 Pairwise similarity is computed via sparse matrix multiplication
 rather than a Python loop over every cell pair, so it scales to
-thousands of cells instead of a few hundred: representing each
-cell's gene set as a row in a binary (cells x genes) matrix, the
-intersection size between every pair of cells is given in a single
-step by matrix @ matrix.T.
+thousands of cells instead of a few hundred. Array buffers are
+reused in place rather than allocating a new full (n_cells x n_cells)
+array at every arithmetic step, to reduce peak memory. This
+deliberately stays in float64 rather than downcasting to float32:
+an earlier attempt at float32 changed hierarchical clustering
+results on this data (average-linkage clustering is sensitive to
+small numerical differences, especially with many tied or
+near-tied distances, which this data has a lot of), so precision
+here is being treated as something to preserve, not trade away,
+unless a future change is explicitly verified not to alter
+downstream clustering results.
 """
+
+import gc
 
 import numpy as np
 from scipy.sparse import csr_matrix
@@ -93,8 +102,8 @@ def jaccard_similarity_matrix(profiles):
                build_cell_profiles. Cell indices must be a contiguous
                range starting at 0.
 
-    Returns an (n_cells x n_cells) numpy array of pairwise Jaccard
-    similarities (1.0 on the diagonal, symmetric).
+    Returns an (n_cells x n_cells) float64 numpy array of pairwise
+    Jaccard similarities (1.0 on the diagonal, symmetric).
     """
 
     gene_universe = _build_gene_universe(profiles)
@@ -102,21 +111,34 @@ def jaccard_similarity_matrix(profiles):
 
     # Intersection size between every pair of cells: dot product of
     # binary rows counts shared genes, for every pair at once.
-    intersection = (
-        profile_matrix @ profile_matrix.T
-    ).toarray().astype(np.float64)
+    intersection = (profile_matrix @ profile_matrix.T).toarray()
+    intersection = intersection.astype(np.float64, copy=False)
 
-    set_sizes = np.asarray(profile_matrix.sum(axis=1)).flatten()
+    set_sizes = np.asarray(
+        profile_matrix.sum(axis=1)
+    ).flatten().astype(np.float64)
 
-    union = set_sizes[:, None] + set_sizes[None, :] - intersection
+    del profile_matrix
+    gc.collect()
+
+    # union = set_sizes[:,None] + set_sizes[None,:] - intersection,
+    # built with in-place steps on one buffer rather than three
+    # separate full-size arrays existing at once.
+    union = np.add(set_sizes[:, None], set_sizes[None, :])
+    union -= intersection
+
+    # Reuse the intersection buffer as the similarity result, instead
+    # of allocating a new array for the division output.
+    similarity = intersection
+    del intersection
 
     with np.errstate(invalid="ignore", divide="ignore"):
-        similarity = np.divide(
-            intersection,
-            union,
-            out=np.zeros_like(intersection),
-            where=union > 0
-        )
+        valid = union > 0
+        np.divide(similarity, union, out=similarity, where=valid)
+        similarity[~valid] = 0.0
+
+    del union
+    gc.collect()
 
     np.fill_diagonal(similarity, 1.0)
 
