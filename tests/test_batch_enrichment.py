@@ -6,7 +6,7 @@ from atlasx.core.peak import Peak
 from atlasx.database.chromosome_index import ChromosomeIndex
 from atlasx.database.nearby_gene_finder import NearbyGeneFinder
 from atlasx.scoring.gene_enrichment import GeneEnrichmentScorer
-from atlasx.scoring.batch_enrichment import run_batch
+from atlasx.scoring.batch_enrichment import run_batch, top_genes_by_frequency
 
 
 def test_batch_enrichment_counts_hits_across_cells():
@@ -42,3 +42,18 @@ def test_batch_enrichment_counts_hits_across_cells():
     hit_counts = run_batch(scorer, num_cells=3, top_n=6, top_genes_per_cell=2)
 
     assert hit_counts["GeneA"] == 3
+
+
+def test_top_genes_by_frequency_caps_at_n_and_ranks_correctly():
+
+    gene_hit_counts = {
+        "AlwaysHit": 100,
+        "OftenHit": 50,
+        "RarelyHit": 2,
+        "OnceHit": 1,
+    }
+
+    top_2 = top_genes_by_frequency(gene_hit_counts, top_n=2)
+
+    assert top_2 == {"AlwaysHit", "OftenHit"}
+    assert len(top_2) == 2

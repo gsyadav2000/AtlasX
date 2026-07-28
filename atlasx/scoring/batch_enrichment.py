@@ -41,3 +41,26 @@ def run_batch(scorer, num_cells, top_n=2000, top_genes_per_cell=20):
             print(f"  Processed {cell_index + 1}/{num_cells} cells")
 
     return gene_hit_counts
+
+
+def top_genes_by_frequency(gene_hit_counts, top_n=100):
+    """
+    Returns the set of the top_n gene names by how many cells they
+    appeared in. Ties are broken arbitrarily.
+
+    Capping at a fixed top_n, rather than defining "observed" as
+    "appeared in at least one cell," matters at scale: with many
+    cells contributing, the union of everyone's top genes can
+    approach the full background gene universe, which collapses the
+    enrichment test's statistical power regardless of how strong the
+    real signal is. A fixed-size top-N keeps the observed set
+    meaningfully smaller than the background at any cell count.
+    """
+
+    ranked = sorted(
+        gene_hit_counts.items(),
+        key=lambda item: item[1],
+        reverse=True
+    )
+
+    return {gene for gene, count in ranked[:top_n]}

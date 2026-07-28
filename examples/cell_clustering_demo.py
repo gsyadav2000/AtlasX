@@ -1,3 +1,6 @@
+import time
+from collections import Counter
+
 import numpy as np
 from scipy.cluster.hierarchy import linkage, fcluster
 from scipy.spatial.distance import squareform
@@ -8,6 +11,7 @@ from atlasx.database.chromosome_index import ChromosomeIndex
 from atlasx.database.nearby_gene_finder import NearbyGeneFinder
 from atlasx.scoring.gene_enrichment import GeneEnrichmentScorer
 from atlasx.scoring.cell_similarity import build_cell_profiles, jaccard_similarity_matrix
+from atlasx.scoring.batch_enrichment import top_genes_by_frequency
 from atlasx.scoring.marker_enrichment import marker_set_enrichment
 from atlasx.scoring.marker_panels import LINEAGE_PANELS
 
@@ -29,12 +33,19 @@ finder = NearbyGeneFinder(index)
 print("\nBuilding peak -> gene background map (this takes a moment)...")
 scorer = GeneEnrichmentScorer(dataset.peaks, finder, dataset.matrix)
 
-num_cells = 200
-num_clusters = 4
-top_genes_per_cell = 50
+full_dataset_size = dataset.matrix.shape[1]
 
-print(f"\nProfiling {num_cells} cells (top {top_genes_per_cell} enriched genes each)...")
-print("This will take a few minutes - full enrichment computation per cell.\n")
+num_cells = full_dataset_size
+num_clusters = 8
+top_genes_per_cell = 50
+top_genes_per_cluster = 100
+
+print(
+    f"\nProfiling all {num_cells:,} cells "
+    f"(top {top_genes_per_cell} enriched genes each)..."
+)
+
+start_time = time.time()
 
 profiles = build_cell_profiles(
     scorer,
@@ -42,6 +53,10 @@ profiles = build_cell_profiles(
     top_n=2000,
     top_genes_per_cell=top_genes_per_cell
 )
+
+elapsed = time.time() - start_time
+
+print(f"\nProfiling took {elapsed:.1f}s for {num_cells:,} cells.")
 
 print("\nComputing pairwise Jaccard similarity between cells...")
 similarity = jaccard_similarity_matrix(profiles)
@@ -64,9 +79,12 @@ print("\n" + "=" * 60)
 print("Lineage marker enrichment per cluster")
 print("=" * 60)
 print(
-    "If clustering found real biological structure, different\n"
-    "clusters should light up for different lineages below, not\n"
-    "all clusters showing the same pattern.\n"
+    "For each cluster, genes are ranked by how many of that cluster's\n"
+    f"cells had them in their own per-cell top-{top_genes_per_cell} list\n"
+    "(already computed above for clustering, reused here at no extra\n"
+    f"cost), then the top {top_genes_per_cluster} most frequent genes are\n"
+    "tested against each lineage marker panel. Capping at a fixed\n"
+    "top-N keeps this meaningful at any cluster size.\n"
 )
 
 background_genes = scorer.background_counts.keys()
@@ -79,10 +97,15 @@ for cluster_id in sorted(set(cluster_labels)):
         if label == cluster_id
     ]
 
-    gene_hit_counts = {}
+    gene_hit_counts = Counter()
     for cell_index in cluster_cell_indices:
         for gene in profiles[cell_index]:
-            gene_hit_counts[gene] = gene_hit_counts.get(gene, 0) + 1
+            gene_hit_counts[gene] += 1
+
+    top_ranked_genes = top_genes_by_frequency(
+        gene_hit_counts,
+        top_n=top_genes_per_cluster
+    )
 
     print(f"--- Cluster {cluster_id} ({len(cluster_cell_indices)} cells) ---")
 
@@ -90,7 +113,7 @@ for cluster_id in sorted(set(cluster_labels)):
 
         try:
             result = marker_set_enrichment(
-                gene_hit_counts,
+                top_ranked_genes,
                 marker_panel,
                 background_genes
             )
