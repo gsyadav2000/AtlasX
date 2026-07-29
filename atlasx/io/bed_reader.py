@@ -2,6 +2,7 @@
 BED file reader for AtlasX.
 """
 
+import gzip
 from pathlib import Path
 
 from atlasx.core.peak import Peak
@@ -9,25 +10,37 @@ from atlasx.core.peak import Peak
 
 class BEDReader:
     """
-    Read genomic intervals from a BED file.
+    Read genomic intervals from a BED file. Transparently handles
+    gzip-compressed .bed.gz files (common in real-world GEO
+    submissions - GEO series' packaged BED files are almost always
+    gzipped) by opening through gzip.open in text mode rather than
+    plain open(), which would otherwise misread the compressed bytes
+    as garbled text instead of raising a clear error or working
+    correctly.
     """
 
     def __init__(self, filepath: str):
         self.filepath = Path(filepath)
 
+    def _open(self):
+
+        if self.filepath.suffix == ".gz":
+            return gzip.open(self.filepath, "rt")
+
+        return self.filepath.open("r")
+
     def load(self) -> list[Peak]:
         """
-        Load a BED file and return a list of Peak objects.
+        Load a BED file (plain or gzip-compressed) and return a list
+        of Peak objects.
         """
 
         if not self.filepath.exists():
-            raise FileNotFoundError(
-                f"BED file not found: {self.filepath}"
-            )
+            raise FileNotFoundError(f"BED file not found: {self.filepath}")
 
         peaks = []
 
-        with self.filepath.open("r") as bed:
+        with self._open() as bed:
 
             for line_number, line in enumerate(bed, start=1):
 
@@ -42,9 +55,7 @@ class BEDReader:
                 fields = line.split()
 
                 if len(fields) < 3:
-                    raise ValueError(
-                        f"Invalid BED format at line {line_number}"
-                    )
+                    raise ValueError(f"Invalid BED format at line {line_number}")
 
                 chromosome = fields[0]
 
@@ -53,9 +64,7 @@ class BEDReader:
                     end = int(fields[2])
 
                 except ValueError:
-                    raise ValueError(
-                        f"Invalid coordinates at line {line_number}"
-                    )
+                    raise ValueError(f"Invalid coordinates at line {line_number}")
 
                 peaks.append(
                     Peak(
