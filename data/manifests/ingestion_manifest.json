@@ -1,21 +1,39 @@
 {
   "GSE216007": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.150923+00:00",
-    "status": "pending"
+    "metrics": {
+      "files_seen": 2,
+      "skipped": [
+        "GSE216007_gex_obj.rds.gz: unrecognized extension, not attempted",
+        "GSE216007_peak_obj.rds.gz: unrecognized extension, not attempted"
+      ]
+    },
+    "notes": "no usable file format found",
+    "recorded_at": "2026-07-29T13:08:45.769506+00:00",
+    "status": "failed_qc"
   },
   "GSE269118": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.145002+00:00",
-    "status": "pending"
+    "metrics": {
+      "files_seen": 2,
+      "skipped": [
+        "GSE269118_RAW.tar: unrecognized extension, not attempted",
+        "filelist.txt: unrecognized extension, not attempted"
+      ]
+    },
+    "notes": "no usable file format found",
+    "recorded_at": "2026-07-29T13:08:48.182641+00:00",
+    "status": "failed_qc"
   },
   "GSE269978": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.150590+00:00",
-    "status": "pending"
+    "metrics": {
+      "files_seen": 2,
+      "skipped": [
+        "GSE269978_RAW.tar: unrecognized extension, not attempted",
+        "filelist.txt: unrecognized extension, not attempted"
+      ]
+    },
+    "notes": "no usable file format found",
+    "recorded_at": "2026-07-29T13:08:50.500456+00:00",
+    "status": "failed_qc"
   },
   "GSE270499": {
     "metrics": {},
