@@ -16,15 +16,16 @@ Pairwise similarity is computed via sparse matrix multiplication
 rather than a Python loop over every cell pair, so it scales to
 thousands of cells instead of a few hundred. Array buffers are
 reused in place rather than allocating a new full (n_cells x n_cells)
-array at every arithmetic step, to reduce peak memory. This
-deliberately stays in float64 rather than downcasting to float32:
-an earlier attempt at float32 changed hierarchical clustering
-results on this data (average-linkage clustering is sensitive to
-small numerical differences, especially with many tied or
-near-tied distances, which this data has a lot of), so precision
-here is being treated as something to preserve, not trade away,
-unless a future change is explicitly verified not to alter
-downstream clustering results.
+array at every arithmetic step, to reduce peak memory - including
+inverting the "valid" mask in place with np.logical_not(..., out=...)
+rather than the `~valid` syntax, which allocates a fresh array. Stays
+in float64 rather than downcasting to float32: an earlier attempt at
+float32 changed hierarchical clustering results on this data
+(average-linkage clustering is sensitive to small numerical
+differences, especially with many tied or near-tied distances, which
+this data has a lot of), so precision here is preserved rather than
+traded away unless a future change is explicitly verified not to
+alter downstream clustering results.
 """
 
 import gc
@@ -109,8 +110,6 @@ def jaccard_similarity_matrix(profiles):
     gene_universe = _build_gene_universe(profiles)
     profile_matrix = _build_profile_matrix(profiles, gene_universe)
 
-    # Intersection size between every pair of cells: dot product of
-    # binary rows counts shared genes, for every pair at once.
     intersection = (profile_matrix @ profile_matrix.T).toarray()
     intersection = intersection.astype(np.float64, copy=False)
 
@@ -121,23 +120,21 @@ def jaccard_similarity_matrix(profiles):
     del profile_matrix
     gc.collect()
 
-    # union = set_sizes[:,None] + set_sizes[None,:] - intersection,
-    # built with in-place steps on one buffer rather than three
-    # separate full-size arrays existing at once.
     union = np.add(set_sizes[:, None], set_sizes[None, :])
     union -= intersection
 
-    # Reuse the intersection buffer as the similarity result, instead
-    # of allocating a new array for the division output.
     similarity = intersection
     del intersection
 
     with np.errstate(invalid="ignore", divide="ignore"):
         valid = union > 0
         np.divide(similarity, union, out=similarity, where=valid)
-        similarity[~valid] = 0.0
+        # Invert in place instead of `~valid`, which would allocate a
+        # second full-size boolean array on top of `valid`.
+        np.logical_not(valid, out=valid)
+        similarity[valid] = 0.0
 
-    del union
+    del union, valid
     gc.collect()
 
     np.fill_diagonal(similarity, 1.0)

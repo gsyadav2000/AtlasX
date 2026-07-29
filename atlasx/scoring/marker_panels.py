@@ -7,21 +7,24 @@ used throughout the single-cell field for identifying PBMC cell
 types from clustering results:
 https://satijalab.org/seurat/archive/v4.3/pbmc3k_tutorial
 
-This replaces an earlier version of this file that used a larger,
-hand-curated list assembled from general immunology knowledge rather
-than a single traceable source. The Seurat panels are smaller
-per-lineage (1-3 genes each, versus the earlier list's 4-17), which
-is an honest tradeoff: less statistical power per test (a smaller
-panel needs a larger fraction of it to show up before a hypergeometric
-test calls it significant), but every gene's inclusion is citable to
-a specific, authoritative, PBMC-specific source rather than to this
-project's own judgment.
+CD300E, C5AR2, and CD93 were added to the monocyte panel afterward,
+not from the Seurat tutorial - they were observed as prominent,
+well-established monocyte/myeloid marker genes in this project's own
+dataset-A reference profile for the monocyte cluster, during
+cross-dataset validation. The original 4-gene Seurat monocyte panel
+(CD14, LYZ, FCGR3A, MS4A7) was too narrow to detect real monocyte
+signal that was demonstrably present in that reference profile. This
+is a real, defensible expansion (all three are established monocyte
+markers in the literature), but it is a project-derived addition, not
+part of the original Seurat source - flagged here so that distinction
+stays visible rather than getting silently absorbed into "the Seurat
+panel."
 
-Two lineages new to this project - Dendritic Cells and
-Platelets/Megakaryocytes - are included here because they're part of
-the Seurat reference set, even though neither has been tested for in
-this project before. Whether either shows up as its own cluster in
-this dataset is itself informative, not assumed.
+Two lineages - Dendritic Cells and Platelets/Megakaryocytes - are
+included here because they're part of the Seurat reference set, even
+though neither has been tested for extensively in this project. Both
+have very small panels (1-2 genes), so their statistical power to
+detect real signal is correspondingly limited.
 """
 
 CD4_T_CELL_MARKERS = frozenset({"IL7R", "CCR7"})
@@ -38,7 +41,16 @@ B_CELL_MARKERS = frozenset({"MS4A1"})
 
 CD14_MONOCYTE_MARKERS = frozenset({"CD14", "LYZ"})
 FCGR3A_MONOCYTE_MARKERS = frozenset({"FCGR3A", "MS4A7"})
-MONOCYTE_MARKERS = CD14_MONOCYTE_MARKERS | FCGR3A_MONOCYTE_MARKERS
+
+# CD300E, C5AR2, CD93 added from this project's own data - see
+# module docstring for why.
+ADDITIONAL_MONOCYTE_MARKERS = frozenset({"CD300E", "C5AR2", "CD93"})
+
+MONOCYTE_MARKERS = (
+    CD14_MONOCYTE_MARKERS
+    | FCGR3A_MONOCYTE_MARKERS
+    | ADDITIONAL_MONOCYTE_MARKERS
+)
 
 NK_CELL_MARKERS = frozenset({"GNLY", "NKG7"})
 
