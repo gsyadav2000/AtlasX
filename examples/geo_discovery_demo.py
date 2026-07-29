@@ -1,7 +1,7 @@
 from atlasx.ingestion.geo_discovery import search_geo
 from atlasx.ingestion.manifest import IngestionManifest
 
-MANIFEST_PATH = "data/processed/ingestion_manifest.json"
+MANIFEST_PATH = "data/manifests/ingestion_manifest.json"
 
 print("Searching GEO for scATAC-seq PBMC datasets...")
 results = search_geo("single cell ATAC-seq PBMC", max_results=15)
