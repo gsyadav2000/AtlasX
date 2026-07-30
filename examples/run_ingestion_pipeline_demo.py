@@ -6,9 +6,11 @@ REFERENCE_PATH = "data/raw/atac_v1_pbmc_10k_filtered_peak_bc_matrix.h5"
 MANIFEST_PATH = "data/manifests/ingestion_manifest.json"
 DOWNLOAD_DIR = "data/raw/ingested"
 
-# First real test: only a handful of accessions, not all pending ones -
-# this is genuinely untested end-to-end, keep the first run small.
-MAX_ACCESSIONS_THIS_RUN = 3
+# Raised from 3 to cover all remaining pending accessions - the
+# pipeline has now been proven not to crash on unrecognized formats,
+# so processing the full remaining backlog is a reasonable next step
+# rather than trickling through a few at a time indefinitely.
+MAX_ACCESSIONS_THIS_RUN = 20
 
 print("Loading known-build reference dataset...")
 reference_dataset = ATACLoader(REFERENCE_PATH).load()
