@@ -13,15 +13,15 @@
   },
   "GSE269118": {
     "metrics": {
-      "files_seen": 2,
-      "skipped": [
-        "GSE269118_RAW.tar: unrecognized extension, not attempted",
-        "filelist.txt: unrecognized extension, not attempted"
-      ]
+      "file": "GSE269118_RAW.tar -> GSM8306617_Patient1_techrep1_summits.bed.gz",
+      "loader": "BEDReader",
+      "overlap_fraction": 0.994,
+      "peak_count": 543971,
+      "tolerance_used": "lenient"
     },
-    "notes": "no usable file format found",
-    "recorded_at": "2026-07-29T13:08:48.182641+00:00",
-    "status": "failed_qc"
+    "notes": "loaded via BEDReader from GSE269118_RAW.tar -> GSM8306617_Patient1_techrep1_summits.bed.gz; PASSED ONLY ON LENIENT genome-build tolerance (cross-lab/summit-style comparison - worth a second look, not a strict same-pipeline match)",
+    "recorded_at": "2026-07-30T09:00:24.455215+00:00",
+    "status": "passed_qc"
   },
   "GSE269978": {
     "metrics": {
