@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from atlasx.ingestion.manifest import IngestionManifest
 from atlasx.ingestion.pipeline import process_accession
@@ -39,3 +39,53 @@ def test_process_accession_records_failure_for_unrecognized_formats_only(tmp_pat
     result = manifest.get("GSE222222")
     assert result["status"] == "failed_qc"
     assert "no usable file format" in result["notes"]
+
+
+def test_process_accession_extracts_tar_and_finds_usable_member(tmp_path):
+    """
+    Real scenario this session actually hit: a .tar containing a
+    usable .bed.gz that isn't listed as a standalone file.
+    """
+
+    manifest = IngestionManifest(tmp_path / "manifest.json")
+
+    fake_bed_path = tmp_path / "extracted_sample.bed.gz"
+    fake_bed_path.write_bytes(b"fake")  # content irrelevant, load is mocked
+
+    fake_peak = MagicMock()
+    fake_peak.chromosome = "chr1"
+
+    with (
+        patch("atlasx.ingestion.pipeline.list_supplementary_files", return_value=["GSE999_RAW.tar"]),
+        patch("atlasx.ingestion.pipeline.get_file_size_mb", return_value=10.0),
+        patch("atlasx.ingestion.pipeline.download_supplementary_file", return_value=tmp_path / "GSE999_RAW.tar"),
+        patch("atlasx.ingestion.pipeline.safe_extract_tar", return_value=[fake_bed_path]),
+        patch("atlasx.ingestion.pipeline.try_load_dataset", return_value=([fake_peak], "BEDReader")),
+        patch("atlasx.ingestion.pipeline.check_genome_build_match", return_value={"likely_same_build": True, "overlap_fraction": 0.9}),
+    ):
+        process_accession("GSE999999", manifest, reference_peaks=[fake_peak], download_dir=tmp_path)
+
+    result = manifest.get("GSE999999")
+    assert result["status"] == "passed_qc"
+    assert "BEDReader" in result["notes"]
+    assert "GSE999_RAW.tar" in result["notes"]
+
+
+def test_process_accession_records_skip_when_tar_has_no_usable_member(tmp_path):
+
+    manifest = IngestionManifest(tmp_path / "manifest.json")
+
+    fastq_path = tmp_path / "reads.fastq.gz"
+    fastq_path.write_bytes(b"fake")
+
+    with (
+        patch("atlasx.ingestion.pipeline.list_supplementary_files", return_value=["GSE888_RAW.tar"]),
+        patch("atlasx.ingestion.pipeline.get_file_size_mb", return_value=10.0),
+        patch("atlasx.ingestion.pipeline.download_supplementary_file", return_value=tmp_path / "GSE888_RAW.tar"),
+        patch("atlasx.ingestion.pipeline.safe_extract_tar", return_value=[fastq_path]),
+    ):
+        process_accession("GSE888888", manifest, reference_peaks=[], download_dir=tmp_path)
+
+    result = manifest.get("GSE888888")
+    assert result["status"] == "failed_qc"
+    assert any("fastq" in reason for reason in result["metrics"]["skipped"])
