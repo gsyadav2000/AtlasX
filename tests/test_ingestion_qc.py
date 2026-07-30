@@ -86,3 +86,44 @@ def test_genome_build_match_detects_different_build():
 
     assert result["likely_same_build"] is False
     assert result["overlap_fraction"] == 0.0
+
+
+def test_genome_build_match_needs_wider_tolerance_for_summit_vs_region():
+    """
+    Real false rejection hit during this project's testing: GSE269118
+    (peak-summit calls from an independent lab's own pipeline) was
+    independently confirmed hg19 via nearest-gene distance against a
+    trusted annotation (median 22kb, all biologically sensible genes),
+    but scored only 0.304 overlap against the default 1000bp
+    tolerance - because summit-vs-region and cross-lab peak-calling
+    can genuinely differ by tens of thousands of bp even on a
+    correctly matching build. This confirms the same offsets that
+    correctly fail at a strict tolerance correctly pass at a tolerance
+    sized for that kind of comparison - the fix is choosing the right
+    tolerance for what's being compared, not weakening the check.
+    """
+
+    reference_peaks = [
+        Peak(chromosome="chr1", start=100000, end=100300),
+        Peak(chromosome="chr1", start=500000, end=500300),
+        Peak(chromosome="chr2", start=200000, end=200300),
+    ]
+
+    # Offsets in the tens-of-thousands-of-bp range, similar to the
+    # real GSE269118 nearest-gene distances observed (median ~22kb).
+    candidate_peaks = [
+        Peak(chromosome="chr1", start=122000, end=122001),  # 22000 bp off
+        Peak(chromosome="chr1", start=515000, end=515001),  # 15000 bp off
+        Peak(chromosome="chr2", start=225000, end=225001),  # 25000 bp off
+    ]
+
+    strict_result = check_genome_build_match(
+        candidate_peaks, reference_peaks, tolerance_bp=1000
+    )
+    assert strict_result["likely_same_build"] is False
+
+    wide_result = check_genome_build_match(
+        candidate_peaks, reference_peaks, tolerance_bp=50000
+    )
+    assert wide_result["likely_same_build"] is True
+    assert wide_result["overlap_fraction"] == 1.0

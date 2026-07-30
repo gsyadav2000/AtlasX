@@ -10,19 +10,29 @@ files differently), out of scope for this module.
 
 check_genome_build_match() generalizes the manual check done earlier
 in this project (comparing peak coordinates between two known
-datasets on the UCSC Genome Browser) into a reusable, automated
-version: instead of eyeballing whether coordinates roughly line up,
-it measures what fraction of a candidate's peaks fall within a
-tolerance of a peak in a known-reference dataset. Real ATAC-seq
-peaks from the same tissue and genome build cluster near shared
-accessible regions, but peak-calling boundaries genuinely shift by
-a few hundred bases between independent samples even on the SAME
-build (different read depth, different noise) - the default
-tolerance (1000bp) was calibrated against two datasets with a
-confirmed-by-hand matching build, where real differences of up to
-~300bp were observed. A genome-build mismatch produces differences
-of thousands to millions of bases, so this tolerance stays far below
-what an actual mismatch would produce.
+datasets on the UCSC Genome Browser / a trusted local annotation)
+into a reusable, automated version: instead of eyeballing whether
+coordinates roughly line up, it measures what fraction of a
+candidate's peaks fall within a tolerance of a peak in a
+known-reference dataset.
+
+IMPORTANT calibration note: the right tolerance depends heavily on
+what's being compared, not just the build. Two datasets from the
+same pipeline family (e.g. two 10x Genomics runs) show peak-calling
+variation of tens to a few hundred bp even on a genuinely matching
+build - the original 1000bp default was calibrated against exactly
+this case. But comparing against an independent lab's own pipeline,
+especially when one side reports "summit" peaks (single-base peak
+apex) rather than "region" peaks (a wider called interval), produced
+a real false rejection during this project's testing: GSE269118, a
+summit-based dataset independently confirmed to be hg19 via nearest-
+gene distance against a trusted annotation (median 22kb, all
+biologically sensible), scored only 0.304 overlap against a 1000bp
+tolerance - well below the 0.7 threshold, despite genuinely matching.
+Summit-to-region and cross-lab comparisons need a much wider
+tolerance (tens of thousands of bp) to reflect that they're
+comparing structurally different things about the same site, not
+because the bar for "same build" is being loosened.
 """
 
 from collections import defaultdict
@@ -76,15 +86,15 @@ def check_genome_build_match(
                        confirmed genome build
     tolerance_bp     : how close a candidate peak's start must be to
                        some reference peak's start (same chromosome)
-                       to count as a match. 1000bp default - real
-                       same-build peak-calling variation between
-                       independent samples was observed up to ~300bp;
-                       genuine build mismatches produce differences
-                       of thousands to millions of bases, so this
-                       stays well clear of that.
-    sample_size      : how many candidate peaks to check (checking
-                       all of them is unnecessary and slow for large
-                       datasets - a few hundred is a reliable sample)
+                       to count as a match. Default (1000bp) is
+                       calibrated for same-pipeline-family
+                       comparisons (e.g. two 10x Genomics datasets).
+                       For cross-lab comparisons, or when comparing
+                       peak SUMMITS against a reference using wider
+                       peak REGIONS, pass a much higher value
+                       (e.g. 50000-100000) - see module docstring for
+                       why this matters, with a real observed case.
+    sample_size      : how many candidate peaks to check
 
     Returns a dict: {"overlap_fraction": float, "likely_same_build": bool}
     """
