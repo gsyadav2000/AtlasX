@@ -36,75 +36,185 @@
     "status": "failed_qc"
   },
   "GSE270499": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.150195+00:00",
-    "status": "pending"
+    "metrics": {
+      "files_seen": 2,
+      "skipped": [
+        "GSE270499_RAW.tar -> GSM8345266_a1_02_11_064_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345267_a1_02_13_066_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345268_a1_02_12_065_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345269_a1_03_11_046_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345270_a1_03_12_047_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345271_a1_04_11_001_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345272_a1_04_13_003_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345273_a1_04_12_002_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345274_a1_05_11_019_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345275_a1_05_13_021_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345276_a1_05_12_020_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345277_a1_07_11_127_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345278_a1_07_12_128_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345279_a1_09_11_100_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345280_a1_09_12_101_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345281_a1_11_11_118_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345282_a1_11_13_120_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345283_a1_11_12_119_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345284_a1_12_11_154_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345285_a1_12_13_156_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "GSE270499_RAW.tar -> GSM8345286_a1_12_12_155_hg38_feature.out.txt.gz: unrecognized extension, not attempted",
+        "filelist.txt: unrecognized extension, not attempted"
+      ]
+    },
+    "notes": "no usable file format found",
+    "recorded_at": "2026-07-30T09:06:09.231660+00:00",
+    "status": "failed_qc"
   },
   "GSE270795": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.149261+00:00",
-    "status": "pending"
+    "metrics": {
+      "files_seen": 19,
+      "skipped": [
+        "GSE270795_BC2_Tet_IL12_filtered_contig_annotations.csv.gz: unrecognized extension, not attempted",
+        "GSE270795_BC2_Tet_IL12_sample_feature_bc_matrix.h5: looked like HDF5 (.h5) but failed to load: No peak features found in data\\raw\\ingested\\GSE270795_BC2_Tet_IL12_sample_feature_bc_matrix.h5 - this file may not contain ATAC-seq peak data at all (e.g. a gene-expression-only matrix).",
+        "GSE270795_BC2_Tet_IL23_filtered_contig_annotations.csv.gz: unrecognized extension, not attempted",
+        "GSE270795_BC2_Tet_IL23_sample_feature_bc_matrix.h5: looked like HDF5 (.h5) but failed to load: No peak features found in data\\raw\\ingested\\GSE270795_BC2_Tet_IL23_sample_feature_bc_matrix.h5 - this file may not contain ATAC-seq peak data at all (e.g. a gene-expression-only matrix).",
+        "GSE270795_BC2_Tet_filtered_contig_annotations.csv.gz: unrecognized extension, not attempted",
+        "GSE270795_BC2_Tet_sample_feature_bc_matrix.h5: looked like HDF5 (.h5) but failed to load: No peak features found in data\\raw\\ingested\\GSE270795_BC2_Tet_sample_feature_bc_matrix.h5 - this file may not contain ATAC-seq peak data at all (e.g. a gene-expression-only matrix).",
+        "GSE270795_BC3_Tet_IL12_filtered_contig_annotations.csv.gz: unrecognized extension, not attempted",
+        "GSE270795_BC3_Tet_IL12_sample_feature_bc_matrix.h5: looked like HDF5 (.h5) but failed to load: No peak features found in data\\raw\\ingested\\GSE270795_BC3_Tet_IL12_sample_feature_bc_matrix.h5 - this file may not contain ATAC-seq peak data at all (e.g. a gene-expression-only matrix).",
+        "GSE270795_BC3_Tet_IL23_filtered_contig_annotations.csv.gz: unrecognized extension, not attempted",
+        "GSE270795_BC3_Tet_IL23_sample_feature_bc_matrix.h5: looked like HDF5 (.h5) but failed to load: No peak features found in data\\raw\\ingested\\GSE270795_BC3_Tet_IL23_sample_feature_bc_matrix.h5 - this file may not contain ATAC-seq peak data at all (e.g. a gene-expression-only matrix).",
+        "GSE270795_BC3_Tet_filtered_contig_annotations.csv.gz: unrecognized extension, not attempted",
+        "GSE270795_BC3_Tet_sample_feature_bc_matrix.h5: looked like HDF5 (.h5) but failed to load: No peak features found in data\\raw\\ingested\\GSE270795_BC3_Tet_sample_feature_bc_matrix.h5 - this file may not contain ATAC-seq peak data at all (e.g. a gene-expression-only matrix).",
+        "GSE270795_BC4_Tet_IL12_filtered_contig_annotations.csv.gz: unrecognized extension, not attempted",
+        "GSE270795_BC4_Tet_IL12_sample_feature_bc_matrix.h5: looked like HDF5 (.h5) but failed to load: No peak features found in data\\raw\\ingested\\GSE270795_BC4_Tet_IL12_sample_feature_bc_matrix.h5 - this file may not contain ATAC-seq peak data at all (e.g. a gene-expression-only matrix).",
+        "GSE270795_BC4_Tet_IL23_filtered_contig_annotations.csv.gz: unrecognized extension, not attempted",
+        "GSE270795_BC4_Tet_IL23_sample_feature_bc_matrix.h5: looked like HDF5 (.h5) but failed to load: No peak features found in data\\raw\\ingested\\GSE270795_BC4_Tet_IL23_sample_feature_bc_matrix.h5 - this file may not contain ATAC-seq peak data at all (e.g. a gene-expression-only matrix).",
+        "GSE270795_BC4_Tet_filtered_contig_annotations.csv.gz: unrecognized extension, not attempted",
+        "GSE270795_BC4_Tet_sample_feature_bc_matrix.h5: looked like HDF5 (.h5) but failed to load: No peak features found in data\\raw\\ingested\\GSE270795_BC4_Tet_sample_feature_bc_matrix.h5 - this file may not contain ATAC-seq peak data at all (e.g. a gene-expression-only matrix).",
+        "GSE270795_TS_TotalSeq_01_features.csv.gz: unrecognized extension, not attempted"
+      ]
+    },
+    "notes": "no usable file format found",
+    "recorded_at": "2026-07-30T09:23:36.793796+00:00",
+    "status": "failed_qc"
   },
   "GSE292617": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.148910+00:00",
-    "status": "pending"
+    "metrics": {
+      "files_seen": 2,
+      "skipped": [
+        "GSE292617_RAW.tar: 2047.8 MB exceeds 200 MB limit",
+        "filelist.txt: unrecognized extension, not attempted"
+      ]
+    },
+    "notes": "no usable file format found",
+    "recorded_at": "2026-07-30T09:10:57.359100+00:00",
+    "status": "failed_qc"
   },
   "GSE293316": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.148577+00:00",
-    "status": "pending"
+    "metrics": {
+      "file": "GSE293316_reh_atac_peaks.bed.gz",
+      "loader": "BEDReader",
+      "overlap_fraction": 0.842,
+      "peak_count": 92328,
+      "tolerance_used": "lenient"
+    },
+    "notes": "loaded via BEDReader from GSE293316_reh_atac_peaks.bed.gz; PASSED ONLY ON LENIENT genome-build tolerance (cross-lab/summit-style comparison - worth a second look, not a strict same-pipeline match)",
+    "recorded_at": "2026-07-30T09:11:17.073551+00:00",
+    "status": "passed_qc"
   },
   "GSE295549": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.147802+00:00",
-    "status": "pending"
+    "metrics": {
+      "files_seen": 1,
+      "skipped": [
+        "GSE295549_Gene_Count_Matrix.csv.gz: unrecognized extension, not attempted"
+      ]
+    },
+    "notes": "no usable file format found",
+    "recorded_at": "2026-07-30T09:11:19.442302+00:00",
+    "status": "failed_qc"
   },
   "GSE295550": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.147123+00:00",
-    "status": "pending"
+    "metrics": {
+      "files_seen": 1,
+      "skipped": [
+        "GSE295550_ATAC-seq_Consensus.csv.gz: unrecognized extension, not attempted"
+      ]
+    },
+    "notes": "no usable file format found",
+    "recorded_at": "2026-07-30T09:11:22.575992+00:00",
+    "status": "failed_qc"
   },
   "GSE306525": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.148217+00:00",
-    "status": "pending"
+    "metrics": {
+      "files_seen": 6,
+      "skipped": [
+        "GSE306525_RAW.tar: 29418.1 MB exceeds 200 MB limit",
+        "GSE306525_cell_annotations.tsv.gz: unrecognized extension, not attempted",
+        "GSE306525_chromvar_matrix.mtx.gz: unrecognized extension, not attempted",
+        "GSE306525_peak_matrix.mtx.gz: unrecognized extension, not attempted",
+        "GSE306525_peaks.tsv.gz: unrecognized extension, not attempted",
+        "filelist.txt: unrecognized extension, not attempted"
+      ]
+    },
+    "notes": "no usable file format found",
+    "recorded_at": "2026-07-30T09:11:28.269950+00:00",
+    "status": "failed_qc"
   },
   "GSE312099": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.145352+00:00",
-    "status": "pending"
+    "metrics": {
+      "files_seen": 2,
+      "skipped": [
+        "GSE312099_RAW.tar: 1030.4 MB exceeds 200 MB limit",
+        "filelist.txt: unrecognized extension, not attempted"
+      ]
+    },
+    "notes": "no usable file format found",
+    "recorded_at": "2026-07-30T09:11:35.128072+00:00",
+    "status": "failed_qc"
   },
   "GSE322656": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.146700+00:00",
-    "status": "pending"
+    "metrics": {
+      "files_seen": 1,
+      "skipped": [
+        "GSE322656_Consensus_ATAC-seq_Day_84.csv.gz: unrecognized extension, not attempted"
+      ]
+    },
+    "notes": "no usable file format found",
+    "recorded_at": "2026-07-30T09:11:38.115896+00:00",
+    "status": "failed_qc"
   },
   "GSE325225": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.146256+00:00",
-    "status": "pending"
+    "metrics": {
+      "file": "GSE325225_RAW.tar -> GSM9598142_scATAC_PBMC_filtered_peak_bc_matrix.h5",
+      "loader": "ATACLoader",
+      "overlap_fraction": 0.896,
+      "peak_count": 113273,
+      "tolerance_used": "lenient"
+    },
+    "notes": "loaded via ATACLoader from GSE325225_RAW.tar -> GSM9598142_scATAC_PBMC_filtered_peak_bc_matrix.h5; PASSED ONLY ON LENIENT genome-build tolerance (cross-lab/summit-style comparison - worth a second look, not a strict same-pipeline match)",
+    "recorded_at": "2026-07-30T09:12:46.398502+00:00",
+    "status": "passed_qc"
   },
   "GSE326191": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.145727+00:00",
-    "status": "pending"
+    "metrics": {
+      "files_seen": 2,
+      "skipped": [
+        "GSE326191_RAW.tar: 2145.4 MB exceeds 200 MB limit",
+        "filelist.txt: unrecognized extension, not attempted"
+      ]
+    },
+    "notes": "no usable file format found",
+    "recorded_at": "2026-07-30T09:12:50.965733+00:00",
+    "status": "failed_qc"
   },
   "GSE333876": {
-    "metrics": {},
-    "notes": "discovered, not yet reviewed",
-    "recorded_at": "2026-07-29T09:40:33.144524+00:00",
-    "status": "pending"
+    "metrics": {
+      "files_seen": 2,
+      "skipped": [
+        "GSE333876_RAW.tar: 871.0 MB exceeds 200 MB limit",
+        "filelist.txt: unrecognized extension, not attempted"
+      ]
+    },
+    "notes": "no usable file format found",
+    "recorded_at": "2026-07-30T09:12:56.357833+00:00",
+    "status": "failed_qc"
   }
 }
