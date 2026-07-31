@@ -14,23 +14,29 @@ single nearest gene, and peaks detected in very few cells are
 excluded entirely as likely dropout noise.
 
 Enrichment significance uses a one-sided binomial test as a fast
-approximation to the exact hypergeometric test, since profiling
-showed the exact test to be the dominant cost at real dataset scale.
-The approximation is only valid when the foreground sample is small
-relative to the background population, so enrich() checks the actual
-sampling fraction on every call and automatically falls back to the
-exact hypergeometric test whenever it isn't.
+approximation to the exact hypergeometric test, falling back to the
+exact test (only on a generously-sized shortlist pre-filtered by the
+cheap binomial pass, not every candidate gene - see below) when the
+foreground sample isn't small enough relative to the background for
+the approximation to be trusted.
 
-A Bonferroni-adjusted p-value is reported alongside the raw one,
-since thousands of genes are tested per call.
+Final ranking breaks ties deterministically by gene name (ties are
+common and expected with small integer counts in a discrete
+hypergeometric/binomial distribution - genes with genuinely identical
+p-values have no single "correct" relative order). An earlier version
+used np.argsort's default, non-stable sort, which produced different
+arbitrary tie orders across otherwise-identical calls - this was
+caught by directly validating the hybrid exact-shortlist approach
+against a full brute-force computation on real data: several
+"mismatches" turned out to be different but equally valid orderings
+of tied p-values, not a correctness bug in the shortlist logic
+itself. Now every result list has one deterministic, reproducible
+order for a given input, and ties are ties in both the fast and
+brute-force paths alike, so comparisons between them are meaningful.
 
 enrich_pseudobulk() runs the identical scoring/statistics on an
 aggregated peak-count profile (e.g. summed across every cell in a
-cluster) rather than one real cell's column. This is the standard
-way single-cell tools compute cluster marker genes: aggregate first,
-then test the aggregate, rather than trying to define a marker gene
-by how consistently it recurs across many individually noisy
-single-cell profiles.
+cluster) rather than one real cell's column.
 """
 
 from collections import Counter
@@ -48,29 +54,18 @@ class GeneEnrichmentScorer:
         matrix,
         window=100000,
         min_cells=5,
-        approximation_fraction_limit=0.1
+        approximation_fraction_limit=0.1,
+        exact_shortlist_multiplier=10,
+        exact_shortlist_floor=200
     ):
-        """
-        peaks     : list[Peak] in the same order as the dataset's peak axis
-        finder    : NearbyGeneFinder, used to find gene candidates near
-                    each peak; the single nearest one is then kept
-        matrix    : peaks x cells sparse matrix (same one used to build
-                    the dataset)
-        window    : search radius in bp used to find gene candidates;
-                    the nearest gene found within this radius is kept
-        min_cells : peaks detected in fewer than this many cells are
-                    excluded entirely, as likely dropout noise
-        approximation_fraction_limit : if foreground_total / background_total
-                    exceeds this fraction, use the exact hypergeometric
-                    test instead of the binomial approximation
-        """
-
         self.peaks = peaks
         self.finder = finder
         self.matrix = matrix
         self.window = window
         self.min_cells = min_cells
         self.approximation_fraction_limit = approximation_fraction_limit
+        self.exact_shortlist_multiplier = exact_shortlist_multiplier
+        self.exact_shortlist_floor = exact_shortlist_floor
 
         self.total_cells = matrix.shape[1]
 
@@ -125,13 +120,6 @@ class GeneEnrichmentScorer:
         return mapping
 
     def _select_top_peaks(self, peak_indices, raw_values, top_n):
-        """
-        Shared peak-selection logic: filters to valid (non-noise)
-        peaks, weights by TF-IDF, returns the top_n peak indices by
-        weighted value. Used identically by top_accessible_peaks (one
-        real cell) and enrich_pseudobulk (an aggregated group), so
-        both paths rank peaks exactly the same way.
-        """
 
         peak_indices = np.asarray(peak_indices)
         raw_values = np.asarray(raw_values)
@@ -143,7 +131,7 @@ class GeneEnrichmentScorer:
 
         weighted_values = raw_values * self.peak_idf[peak_indices]
 
-        order = weighted_values.argsort()[::-1]
+        order = weighted_values.argsort(kind="stable")[::-1]
 
         if len(order) > top_n:
             order = order[:top_n]
@@ -151,10 +139,6 @@ class GeneEnrichmentScorer:
         return [peak_indices[i] for i in order]
 
     def top_accessible_peaks(self, cell_index, top_n=10000):
-        """
-        Return indices of the top_n valid peaks for one cell, ranked
-        by raw signal weighted by each peak's TF-IDF score.
-        """
 
         column = self.matrix[:, cell_index]
 
@@ -201,25 +185,44 @@ class GeneEnrichmentScorer:
 
         else:
 
-            p_values = hypergeom.sf(
+            gene_probabilities = bg_counts / self.background_total
+            binom_p_values = binom.sf(
                 fg_counts - 1,
+                foreground_total,
+                gene_probabilities
+            )
+
+            shortlist_size = min(
+                num_tests,
+                max(top_genes * self.exact_shortlist_multiplier, self.exact_shortlist_floor)
+            )
+            # Stable sort so ties in the binomial pre-filter are
+            # broken the same way every time, not arbitrarily.
+            shortlist_order = np.argsort(binom_p_values, kind="stable")[:shortlist_size]
+
+            p_values = binom_p_values.copy()
+
+            exact_p_values = hypergeom.sf(
+                fg_counts[shortlist_order] - 1,
                 self.background_total,
-                bg_counts,
+                bg_counts[shortlist_order],
                 foreground_total
             )
+            p_values[shortlist_order] = exact_p_values
 
         p_adjusted = np.minimum(p_values * num_tests, 1.0)
 
+        # Deterministic tiebreak: when p-values are genuinely tied,
+        # order alphabetically by gene name rather than leaving it to
+        # whatever order happened to survive - ties have no single
+        # "correct" order, but the result should be the same every
+        # time given the same input.
         results = list(zip(gene_names, p_values, p_adjusted))
-        results.sort(key=lambda item: item[1])
+        results.sort(key=lambda item: (item[1], item[0]))
 
         return results[:top_genes]
 
     def enrich(self, cell_index, top_n=10000, top_genes=1000):
-        """
-        Returns a list of (gene_name, p_value, p_adjusted) tuples for
-        one real cell, sorted by p_value ascending.
-        """
 
         foreground_peak_indices = self.top_accessible_peaks(
             cell_index,
@@ -232,12 +235,6 @@ class GeneEnrichmentScorer:
         )
 
     def enrich_pseudobulk(self, peak_indices, peak_values, top_n=10000, top_genes=1000):
-        """
-        Same enrichment logic as enrich(), applied to an arbitrary
-        aggregated peak-count profile instead of one real cell's
-        matrix column - e.g. summed peak counts across every cell in
-        a cluster, from pseudobulk.build_cluster_pseudobulk().
-        """
 
         foreground_peak_indices = self._select_top_peaks(
             peak_indices,
