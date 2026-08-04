@@ -15,28 +15,22 @@ excluded entirely as likely dropout noise.
 
 Enrichment significance uses a one-sided binomial test as a fast
 approximation to the exact hypergeometric test, falling back to the
-exact test (only on a generously-sized shortlist pre-filtered by the
-cheap binomial pass, not every candidate gene - see below) when the
-foreground sample isn't small enough relative to the background for
-the approximation to be trusted.
+exact test (on a shortlist pre-filtered by the cheap binomial pass)
+when the foreground sample isn't small enough relative to the
+background for the approximation to be trusted.
 
-Final ranking breaks ties deterministically by gene name (ties are
-common and expected with small integer counts in a discrete
-hypergeometric/binomial distribution - genes with genuinely identical
-p-values have no single "correct" relative order). An earlier version
-used np.argsort's default, non-stable sort, which produced different
-arbitrary tie orders across otherwise-identical calls - this was
-caught by directly validating the hybrid exact-shortlist approach
-against a full brute-force computation on real data: several
-"mismatches" turned out to be different but equally valid orderings
-of tied p-values, not a correctness bug in the shortlist logic
-itself. Now every result list has one deterministic, reproducible
-order for a given input, and ties are ties in both the fast and
-brute-force paths alike, so comparisons between them are meaningful.
-
-enrich_pseudobulk() runs the identical scoring/statistics on an
-aggregated peak-count profile (e.g. summed across every cell in a
-cluster) rather than one real cell's column.
+exact_shortlist_size is now an INDEPENDENT parameter from top_genes,
+not derived from it (top_genes * multiplier, as an earlier version
+did). Those are genuinely different concerns: top_genes controls how
+many results are returned; exact_shortlist_size controls how many
+candidates get the expensive exact re-ranking. Conflating them broke
+a real use case: correlation_matching.py needs a wide top_genes
+(hundreds to thousands, for a dense enrichment vector with real
+structure - a small top_genes was tried and directly measured to
+collapse real cell-type clustering into one undifferentiated blob),
+but does NOT need each of those thousands of entries exactly-ranked
+against each other - a modest, fixed shortlist size is sufficient
+regardless of how many results are ultimately requested.
 """
 
 from collections import Counter
@@ -144,7 +138,7 @@ class GeneEnrichmentScorer:
 
         return self._select_top_peaks(column.indices, column.data, top_n)
 
-    def _enrich_from_peak_indices(self, foreground_peak_indices, top_genes):
+    def _enrich_from_peak_indices(self, foreground_peak_indices, top_genes, exact_shortlist_size=None):
 
         foreground_genes = [
             gene
@@ -192,12 +186,16 @@ class GeneEnrichmentScorer:
                 gene_probabilities
             )
 
-            shortlist_size = min(
-                num_tests,
-                max(top_genes * self.exact_shortlist_multiplier, self.exact_shortlist_floor)
-            )
-            # Stable sort so ties in the binomial pre-filter are
-            # broken the same way every time, not arbitrarily.
+            if exact_shortlist_size is not None:
+                # Independent, fixed shortlist size - does NOT scale
+                # with top_genes. See class docstring.
+                shortlist_size = min(num_tests, exact_shortlist_size)
+            else:
+                shortlist_size = min(
+                    num_tests,
+                    max(top_genes * self.exact_shortlist_multiplier, self.exact_shortlist_floor)
+                )
+
             shortlist_order = np.argsort(binom_p_values, kind="stable")[:shortlist_size]
 
             p_values = binom_p_values.copy()
@@ -212,17 +210,12 @@ class GeneEnrichmentScorer:
 
         p_adjusted = np.minimum(p_values * num_tests, 1.0)
 
-        # Deterministic tiebreak: when p-values are genuinely tied,
-        # order alphabetically by gene name rather than leaving it to
-        # whatever order happened to survive - ties have no single
-        # "correct" order, but the result should be the same every
-        # time given the same input.
         results = list(zip(gene_names, p_values, p_adjusted))
         results.sort(key=lambda item: (item[1], item[0]))
 
         return results[:top_genes]
 
-    def enrich(self, cell_index, top_n=10000, top_genes=1000):
+    def enrich(self, cell_index, top_n=10000, top_genes=1000, exact_shortlist_size=None):
 
         foreground_peak_indices = self.top_accessible_peaks(
             cell_index,
@@ -231,10 +224,11 @@ class GeneEnrichmentScorer:
 
         return self._enrich_from_peak_indices(
             foreground_peak_indices,
-            top_genes
+            top_genes,
+            exact_shortlist_size=exact_shortlist_size
         )
 
-    def enrich_pseudobulk(self, peak_indices, peak_values, top_n=10000, top_genes=1000):
+    def enrich_pseudobulk(self, peak_indices, peak_values, top_n=10000, top_genes=1000, exact_shortlist_size=None):
 
         foreground_peak_indices = self._select_top_peaks(
             peak_indices,
@@ -244,5 +238,6 @@ class GeneEnrichmentScorer:
 
         return self._enrich_from_peak_indices(
             foreground_peak_indices,
-            top_genes
+            top_genes,
+            exact_shortlist_size=exact_shortlist_size
         )
