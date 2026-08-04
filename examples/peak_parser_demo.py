@@ -1,4 +1,4 @@
-from atlasx.loader.atac_loader import ATACLoader
+from epimatch.loader.atac_loader import ATACLoader
 
 print("Loading ATAC dataset...")
 

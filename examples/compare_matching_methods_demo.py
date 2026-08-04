@@ -1,11 +1,11 @@
 import random
 
-from atlasx.loader.atac_loader import ATACLoader
-from atlasx.database.gene_database import GeneDatabase
-from atlasx.database.chromosome_index import ChromosomeIndex
-from atlasx.database.nearby_gene_finder import NearbyGeneFinder
-from atlasx.scoring.gene_enrichment import GeneEnrichmentScorer
-from atlasx.scoring.correlation_matching import (
+from epimatch.loader.atac_loader import ATACLoader
+from epimatch.database.gene_database import GeneDatabase
+from epimatch.database.chromosome_index import ChromosomeIndex
+from epimatch.database.nearby_gene_finder import NearbyGeneFinder
+from epimatch.scoring.gene_enrichment import GeneEnrichmentScorer
+from epimatch.scoring.correlation_matching import (
     build_gene_index,
     build_enrichment_vector,
     spearman_similarity_matrix,
@@ -23,7 +23,7 @@ finder = NearbyGeneFinder(index)
 NUM_CELLS = 100
 
 for label, window, top_n in [
-    ("AtlasX params + Spearman matching", 100000, 2000),
+    ("EpiMatch params + Spearman matching", 100000, 2000),
     ("scEpiSearch params + Spearman matching", 1000000, 10000),
 ]:
 

@@ -1,4 +1,4 @@
-from atlasx.scoring.marker_panels import (
+from epimatch.scoring.marker_panels import (
     T_CELL_MARKERS,
     B_CELL_MARKERS,
     MONOCYTE_MARKERS,

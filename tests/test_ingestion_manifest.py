@@ -1,4 +1,4 @@
-from atlasx.ingestion.manifest import IngestionManifest
+from epimatch.ingestion.manifest import IngestionManifest
 
 
 def test_manifest_records_and_persists(tmp_path):

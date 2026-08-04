@@ -2,7 +2,7 @@ import gzip
 import tempfile
 from pathlib import Path
 
-from atlasx.io import BEDReader
+from epimatch.io import BEDReader
 
 
 def test_bed_reader_loads_tracked_example():

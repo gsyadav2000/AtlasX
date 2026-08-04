@@ -1,6 +1,6 @@
 import requests
 
-from atlasx.ingestion.geo_download import list_supplementary_files, suppl_directory_url
+from epimatch.ingestion.geo_download import list_supplementary_files, suppl_directory_url
 
 # Pick a real accession from your manifest to test against.
 ACCESSION = "GSE333876"

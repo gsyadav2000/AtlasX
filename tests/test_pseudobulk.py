@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.sparse import csc_matrix
 
-from atlasx.scoring.pseudobulk import build_cluster_pseudobulk
+from epimatch.scoring.pseudobulk import build_cluster_pseudobulk
 
 
 def test_build_cluster_pseudobulk_sums_correctly():

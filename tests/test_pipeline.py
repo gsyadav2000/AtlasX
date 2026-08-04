@@ -1,14 +1,14 @@
 from unittest.mock import patch, MagicMock
 
-from atlasx.ingestion.manifest import IngestionManifest
-from atlasx.ingestion.pipeline import process_accession
+from epimatch.ingestion.manifest import IngestionManifest
+from epimatch.ingestion.pipeline import process_accession
 
 
 def test_process_accession_records_failure_when_no_files_found(tmp_path):
 
     manifest = IngestionManifest(tmp_path / "manifest.json")
 
-    with patch("atlasx.ingestion.pipeline.list_supplementary_files", return_value=[]):
+    with patch("epimatch.ingestion.pipeline.list_supplementary_files", return_value=[]):
         process_accession("GSE000000", manifest, reference_peaks=[], download_dir=tmp_path)
 
     result = manifest.get("GSE000000")
@@ -21,7 +21,7 @@ def test_process_accession_skips_already_processed(tmp_path):
     manifest = IngestionManifest(tmp_path / "manifest.json")
     manifest.record("GSE111111", "passed_qc", notes="already done")
 
-    with patch("atlasx.ingestion.pipeline.list_supplementary_files") as mock_list:
+    with patch("epimatch.ingestion.pipeline.list_supplementary_files") as mock_list:
         process_accession("GSE111111", manifest, reference_peaks=[], download_dir=tmp_path)
         mock_list.assert_not_called()
 
@@ -31,7 +31,7 @@ def test_process_accession_records_failure_for_unrecognized_formats_only(tmp_pat
     manifest = IngestionManifest(tmp_path / "manifest.json")
 
     with patch(
-        "atlasx.ingestion.pipeline.list_supplementary_files",
+        "epimatch.ingestion.pipeline.list_supplementary_files",
         return_value=["data.bw", "readme.txt"],
     ):
         process_accession("GSE222222", manifest, reference_peaks=[], download_dir=tmp_path)
@@ -56,12 +56,12 @@ def test_process_accession_extracts_tar_and_finds_usable_member(tmp_path):
     fake_peak.chromosome = "chr1"
 
     with (
-        patch("atlasx.ingestion.pipeline.list_supplementary_files", return_value=["GSE999_RAW.tar"]),
-        patch("atlasx.ingestion.pipeline.get_file_size_mb", return_value=10.0),
-        patch("atlasx.ingestion.pipeline.download_supplementary_file", return_value=tmp_path / "GSE999_RAW.tar"),
-        patch("atlasx.ingestion.pipeline.safe_extract_tar", return_value=[fake_bed_path]),
-        patch("atlasx.ingestion.pipeline.try_load_dataset", return_value=([fake_peak], "BEDReader")),
-        patch("atlasx.ingestion.pipeline.check_genome_build_match", return_value={"likely_same_build": True, "overlap_fraction": 0.9}),
+        patch("epimatch.ingestion.pipeline.list_supplementary_files", return_value=["GSE999_RAW.tar"]),
+        patch("epimatch.ingestion.pipeline.get_file_size_mb", return_value=10.0),
+        patch("epimatch.ingestion.pipeline.download_supplementary_file", return_value=tmp_path / "GSE999_RAW.tar"),
+        patch("epimatch.ingestion.pipeline.safe_extract_tar", return_value=[fake_bed_path]),
+        patch("epimatch.ingestion.pipeline.try_load_dataset", return_value=([fake_peak], "BEDReader")),
+        patch("epimatch.ingestion.pipeline.check_genome_build_match", return_value={"likely_same_build": True, "overlap_fraction": 0.9}),
     ):
         process_accession("GSE999999", manifest, reference_peaks=[fake_peak], download_dir=tmp_path)
 
@@ -79,10 +79,10 @@ def test_process_accession_records_skip_when_tar_has_no_usable_member(tmp_path):
     fastq_path.write_bytes(b"fake")
 
     with (
-        patch("atlasx.ingestion.pipeline.list_supplementary_files", return_value=["GSE888_RAW.tar"]),
-        patch("atlasx.ingestion.pipeline.get_file_size_mb", return_value=10.0),
-        patch("atlasx.ingestion.pipeline.download_supplementary_file", return_value=tmp_path / "GSE888_RAW.tar"),
-        patch("atlasx.ingestion.pipeline.safe_extract_tar", return_value=[fastq_path]),
+        patch("epimatch.ingestion.pipeline.list_supplementary_files", return_value=["GSE888_RAW.tar"]),
+        patch("epimatch.ingestion.pipeline.get_file_size_mb", return_value=10.0),
+        patch("epimatch.ingestion.pipeline.download_supplementary_file", return_value=tmp_path / "GSE888_RAW.tar"),
+        patch("epimatch.ingestion.pipeline.safe_extract_tar", return_value=[fastq_path]),
     ):
         process_accession("GSE888888", manifest, reference_peaks=[], download_dir=tmp_path)
 

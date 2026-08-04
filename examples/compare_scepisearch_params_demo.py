@@ -4,15 +4,15 @@ import numpy as np
 from scipy.cluster.hierarchy import linkage, fcluster
 from scipy.spatial.distance import squareform
 
-from atlasx.loader.atac_loader import ATACLoader
-from atlasx.database.gene_database import GeneDatabase
-from atlasx.database.chromosome_index import ChromosomeIndex
-from atlasx.database.nearby_gene_finder import NearbyGeneFinder
-from atlasx.scoring.gene_enrichment import GeneEnrichmentScorer
-from atlasx.scoring.cell_similarity import build_cell_profiles, jaccard_similarity_matrix
-from atlasx.scoring.batch_enrichment import top_genes_by_frequency
-from atlasx.scoring.marker_enrichment import marker_set_enrichment
-from atlasx.scoring.marker_panels import LINEAGE_PANELS
+from epimatch.loader.atac_loader import ATACLoader
+from epimatch.database.gene_database import GeneDatabase
+from epimatch.database.chromosome_index import ChromosomeIndex
+from epimatch.database.nearby_gene_finder import NearbyGeneFinder
+from epimatch.scoring.gene_enrichment import GeneEnrichmentScorer
+from epimatch.scoring.cell_similarity import build_cell_profiles, jaccard_similarity_matrix
+from epimatch.scoring.batch_enrichment import top_genes_by_frequency
+from epimatch.scoring.marker_enrichment import marker_set_enrichment
+from epimatch.scoring.marker_panels import LINEAGE_PANELS
 
 DATASET_PATH = "data/raw/atac_v1_pbmc_10k_filtered_peak_bc_matrix.h5"
 GTF_PATH = "data/reference/gencode.v47lift37.basic.annotation.gtf"

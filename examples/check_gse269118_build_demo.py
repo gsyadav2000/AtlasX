@@ -1,4 +1,4 @@
-from atlasx.io.bed_reader import BEDReader
+from epimatch.io.bed_reader import BEDReader
 
 peaks = BEDReader("data/raw/ingested/GSE269118_extracted/GSM8306617_Patient1_techrep1_summits.bed.gz").load()
 

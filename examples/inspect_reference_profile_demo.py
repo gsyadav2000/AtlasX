@@ -1,6 +1,6 @@
 import pickle
 
-from atlasx.scoring.marker_panels import LINEAGE_PANELS
+from epimatch.scoring.marker_panels import LINEAGE_PANELS
 
 with open("data/processed/dataset_a_reference.pkl", "rb") as f:
     saved = pickle.load(f)

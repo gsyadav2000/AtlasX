@@ -1,4 +1,4 @@
-from atlasx.scoring.marker_enrichment import marker_set_enrichment, genes_above_frequency
+from epimatch.scoring.marker_enrichment import marker_set_enrichment, genes_above_frequency
 
 
 def test_marker_enrichment_detects_overrepresentation():

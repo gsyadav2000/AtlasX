@@ -2,16 +2,16 @@ import pickle
 import time
 from collections import Counter
 
-from atlasx.loader.atac_loader import ATACLoader
-from atlasx.database.gene_database import GeneDatabase
-from atlasx.database.chromosome_index import ChromosomeIndex
-from atlasx.database.nearby_gene_finder import NearbyGeneFinder
-from atlasx.scoring.gene_enrichment import GeneEnrichmentScorer
-from atlasx.scoring.cell_similarity import build_cell_profiles
-from atlasx.scoring.reference_matching import match_cell_to_references
-from atlasx.scoring.batch_enrichment import top_genes_by_frequency
-from atlasx.scoring.marker_enrichment import marker_set_enrichment
-from atlasx.scoring.marker_panels import LINEAGE_PANELS
+from epimatch.loader.atac_loader import ATACLoader
+from epimatch.database.gene_database import GeneDatabase
+from epimatch.database.chromosome_index import ChromosomeIndex
+from epimatch.database.nearby_gene_finder import NearbyGeneFinder
+from epimatch.scoring.gene_enrichment import GeneEnrichmentScorer
+from epimatch.scoring.cell_similarity import build_cell_profiles
+from epimatch.scoring.reference_matching import match_cell_to_references
+from epimatch.scoring.batch_enrichment import top_genes_by_frequency
+from epimatch.scoring.marker_enrichment import marker_set_enrichment
+from epimatch.scoring.marker_panels import LINEAGE_PANELS
 
 DATASET_B_PATH = "data/raw/atac_pbmc_5k_v1_filtered_peak_bc_matrix.h5"
 GTF_PATH = "data/reference/gencode.v47lift37.basic.annotation.gtf"

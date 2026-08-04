@@ -1,6 +1,6 @@
 import numpy as np
 
-from atlasx.scoring.correlation_matching import (
+from epimatch.scoring.correlation_matching import (
     spearman_similarity_matrix,
     spearman_similarity_matrix_pairwise,
 )

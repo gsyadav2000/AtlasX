@@ -2,7 +2,7 @@ import h5py
 import numpy as np
 from scipy.sparse import csc_matrix
 
-from atlasx.loader.atac_loader import ATACLoader
+from epimatch.loader.atac_loader import ATACLoader
 
 
 def test_atac_loader_filters_multiome_to_peaks_only(tmp_path):

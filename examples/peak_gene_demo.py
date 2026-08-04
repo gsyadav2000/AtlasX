@@ -1,5 +1,5 @@
-from atlasx.core.peak import Peak
-from atlasx.core.gene import Gene
+from epimatch.core.peak import Peak
+from epimatch.core.gene import Gene
 
 peak = Peak.from_string(
     "chr17:7670000-7670500"

@@ -1,7 +1,7 @@
-from atlasx.loader.atac_loader import ATACLoader
-from atlasx.database.gene_database import GeneDatabase
-from atlasx.database.chromosome_index import ChromosomeIndex
-from atlasx.database.nearby_gene_finder import NearbyGeneFinder
+from epimatch.loader.atac_loader import ATACLoader
+from epimatch.database.gene_database import GeneDatabase
+from epimatch.database.chromosome_index import ChromosomeIndex
+from epimatch.database.nearby_gene_finder import NearbyGeneFinder
 
 print("Loading ATAC dataset...")
 

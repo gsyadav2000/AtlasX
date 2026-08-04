@@ -2,7 +2,7 @@ import tarfile
 
 import pytest
 
-from atlasx.ingestion.tar_inspection import list_tar_contents, safe_extract_tar
+from epimatch.ingestion.tar_inspection import list_tar_contents, safe_extract_tar
 
 
 def make_tar(tmp_path, members):

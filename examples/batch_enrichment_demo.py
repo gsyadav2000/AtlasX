@@ -1,11 +1,11 @@
-from atlasx.loader.atac_loader import ATACLoader
-from atlasx.database.gene_database import GeneDatabase
-from atlasx.database.chromosome_index import ChromosomeIndex
-from atlasx.database.nearby_gene_finder import NearbyGeneFinder
-from atlasx.scoring.gene_enrichment import GeneEnrichmentScorer
-from atlasx.scoring.batch_enrichment import run_batch
-from atlasx.scoring.marker_panels import PBMC_IMMUNE_MARKERS
-from atlasx.scoring.marker_enrichment import marker_set_enrichment
+from epimatch.loader.atac_loader import ATACLoader
+from epimatch.database.gene_database import GeneDatabase
+from epimatch.database.chromosome_index import ChromosomeIndex
+from epimatch.database.nearby_gene_finder import NearbyGeneFinder
+from epimatch.scoring.gene_enrichment import GeneEnrichmentScorer
+from epimatch.scoring.batch_enrichment import run_batch
+from epimatch.scoring.marker_panels import PBMC_IMMUNE_MARKERS
+from epimatch.scoring.marker_enrichment import marker_set_enrichment
 
 print("Loading ATAC dataset...")
 loader = ATACLoader(

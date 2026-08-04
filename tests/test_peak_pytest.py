@@ -1,4 +1,4 @@
-from atlasx.core.peak import Peak
+from epimatch.core.peak import Peak
 
 
 def test_peak_creation():

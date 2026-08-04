@@ -1,5 +1,5 @@
-from atlasx.database.gene_database import GeneDatabase
-from atlasx.database.chromosome_index import ChromosomeIndex
+from epimatch.database.gene_database import GeneDatabase
+from epimatch.database.chromosome_index import ChromosomeIndex
 
 db = GeneDatabase(
     "data/reference/gencode.v47.basic.annotation.gtf"

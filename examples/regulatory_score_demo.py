@@ -1,4 +1,4 @@
-from atlasx.scoring.regulatory_score import RegulatoryScore
+from epimatch.scoring.regulatory_score import RegulatoryScore
 
 score = RegulatoryScore(
     distance_bp=17300,
@@ -7,7 +7,7 @@ score = RegulatoryScore(
 )
 
 print("=" * 50)
-print("AtlasX Regulatory Score")
+print("EpiMatch Regulatory Score")
 print("=" * 50)
 
 print("Distance Score :", score.distance_score())

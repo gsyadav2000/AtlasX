@@ -1,6 +1,6 @@
-from atlasx.loader.atac_loader import ATACLoader
-from atlasx.ingestion.format_adapters import try_load_dataset
-from atlasx.ingestion.qc import check_genome_build_match
+from epimatch.loader.atac_loader import ATACLoader
+from epimatch.ingestion.format_adapters import try_load_dataset
+from epimatch.ingestion.qc import check_genome_build_match
 
 REFERENCE_PATH = "data/raw/atac_v1_pbmc_10k_filtered_peak_bc_matrix.h5"
 

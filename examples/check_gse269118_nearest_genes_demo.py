@@ -1,9 +1,9 @@
 import random
 
-from atlasx.database.gene_database import GeneDatabase
-from atlasx.database.chromosome_index import ChromosomeIndex
-from atlasx.database.nearby_gene_finder import NearbyGeneFinder
-from atlasx.io.bed_reader import BEDReader
+from epimatch.database.gene_database import GeneDatabase
+from epimatch.database.chromosome_index import ChromosomeIndex
+from epimatch.database.nearby_gene_finder import NearbyGeneFinder
+from epimatch.io.bed_reader import BEDReader
 
 print("Loading trusted hg19 gene annotation...")
 genes = GeneDatabase(

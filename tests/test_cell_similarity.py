@@ -1,4 +1,4 @@
-from atlasx.scoring.cell_similarity import jaccard_similarity_matrix
+from epimatch.scoring.cell_similarity import jaccard_similarity_matrix
 
 
 def test_jaccard_similarity_matrix_values():

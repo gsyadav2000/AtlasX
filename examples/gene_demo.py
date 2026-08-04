@@ -1,4 +1,4 @@
-from atlasx.core.gene import Gene
+from epimatch.core.gene import Gene
 
 gene = Gene(
     name="TP53",

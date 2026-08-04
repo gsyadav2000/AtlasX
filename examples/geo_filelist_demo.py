@@ -1,4 +1,4 @@
-from atlasx.ingestion.geo_download import fetch_filelist_text
+from epimatch.ingestion.geo_download import fetch_filelist_text
 
 ACCESSION = "GSE333876"
 

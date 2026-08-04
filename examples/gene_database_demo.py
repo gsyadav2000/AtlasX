@@ -1,4 +1,4 @@
-from atlasx.database.gene_database import GeneDatabase
+from epimatch.database.gene_database import GeneDatabase
 
 print("Loading GENCODE annotation...")
 

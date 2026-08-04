@@ -1,13 +1,13 @@
-from atlasx.core.peak import Peak
-from atlasx.core.dataset import AtlasXDataset
-from atlasx.ingestion.qc import check_dataset_quality, check_genome_build_match
+from epimatch.core.peak import Peak
+from epimatch.core.dataset import EpiMatchDataset
+from epimatch.ingestion.qc import check_dataset_quality, check_genome_build_match
 
 from scipy.sparse import csc_matrix
 import numpy as np
 
 
 def make_test_dataset(n_peaks, n_cells, peaks_per_cell):
-    """Builds a minimal synthetic AtlasXDataset for QC testing."""
+    """Builds a minimal synthetic EpiMatchDataset for QC testing."""
 
     peaks = [
         Peak(chromosome="chr1", start=1000 * i, end=1000 * i + 300)
@@ -24,7 +24,7 @@ def make_test_dataset(n_peaks, n_cells, peaks_per_cell):
     matrix = csc_matrix((data, (rows, cols)), shape=(n_peaks, n_cells))
     barcodes = [f"cell_{i}" for i in range(n_cells)]
 
-    return AtlasXDataset(matrix=matrix, peaks=peaks, cells=barcodes)
+    return EpiMatchDataset(matrix=matrix, peaks=peaks, cells=barcodes)
 
 
 def test_quality_check_flags_too_few_cells():

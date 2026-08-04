@@ -1,5 +1,5 @@
-from atlasx.ingestion.geo_download import download_supplementary_file
-from atlasx.ingestion.tar_inspection import list_tar_contents
+from epimatch.ingestion.geo_download import download_supplementary_file
+from epimatch.ingestion.tar_inspection import list_tar_contents
 
 ACCESSION = "GSE269118"
 FILENAME = "GSE269118_RAW.tar"

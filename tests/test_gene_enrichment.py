@@ -1,11 +1,11 @@
 import numpy as np
 from scipy.sparse import csc_matrix
 
-from atlasx.core.gene import Gene
-from atlasx.core.peak import Peak
-from atlasx.database.chromosome_index import ChromosomeIndex
-from atlasx.database.nearby_gene_finder import NearbyGeneFinder
-from atlasx.scoring.gene_enrichment import GeneEnrichmentScorer
+from epimatch.core.gene import Gene
+from epimatch.core.peak import Peak
+from epimatch.database.chromosome_index import ChromosomeIndex
+from epimatch.database.nearby_gene_finder import NearbyGeneFinder
+from epimatch.scoring.gene_enrichment import GeneEnrichmentScorer
 
 
 def test_gene_enrichment_identifies_correct_gene():

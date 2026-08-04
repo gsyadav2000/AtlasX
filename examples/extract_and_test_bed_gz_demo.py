@@ -1,5 +1,5 @@
-from atlasx.ingestion.tar_inspection import safe_extract_tar
-from atlasx.ingestion.format_adapters import try_load_dataset
+from epimatch.ingestion.tar_inspection import safe_extract_tar
+from epimatch.ingestion.format_adapters import try_load_dataset
 
 TAR_PATH = "data/raw/ingested/GSE269118_RAW.tar"
 EXTRACT_DIR = "data/raw/ingested/GSE269118_extracted"

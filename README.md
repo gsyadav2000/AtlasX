@@ -1,6 +1,6 @@
-# AtlasX
+# EpiMatch
 
-AtlasX is an open-source Python toolkit for analyzing single-cell ATAC-seq data: scoring which genes are statistically enriched near each cell's accessible chromatin, clustering cells by that enrichment signal, and matching cells against reference profiles with a proper statistical null model.
+EpiMatch is an open-source Python toolkit for analyzing single-cell ATAC-seq data: scoring which genes are statistically enriched near each cell's accessible chromatin, clustering cells by that enrichment signal, and matching cells against reference profiles with a proper statistical null model.
 
 It's built as a from-scratch, transparent reimplementation of the core ideas behind [scEpiSearch](https://genome.cshlp.org/content/33/2/218) (Mishra et al., *Genome Research* 2023) — gene-enrichment scoring in place of raw peak comparison, and null-model-calibrated matching in place of fixed thresholds — validated step by step against real PBMC data rather than assumed to work.
 
@@ -39,7 +39,7 @@ Or clone and install in editable mode for development:
 
 ```bash
 git clone https://github.com/gsyadav2000/AtlasX.git
-cd AtlasX
+cd EpiMatch
 python -m pip install -e .
 ```
 
@@ -52,11 +52,11 @@ You'll also need a GENCODE annotation matching your data's genome build (see not
 The full worked pipeline — load data, score gene enrichment, cluster cells, test against marker panels — lives in `examples/cell_clustering_demo.py`. Reference matching is in `examples/reference_matching_demo.py`. A minimal enrichment example:
 
 ```python
-from atlasx.loader.atac_loader import ATACLoader
-from atlasx.database.gene_database import GeneDatabase
-from atlasx.database.chromosome_index import ChromosomeIndex
-from atlasx.database.nearby_gene_finder import NearbyGeneFinder
-from atlasx.scoring.gene_enrichment import GeneEnrichmentScorer
+from epimatch.loader.atac_loader import ATACLoader
+from epimatch.database.gene_database import GeneDatabase
+from epimatch.database.chromosome_index import ChromosomeIndex
+from epimatch.database.nearby_gene_finder import NearbyGeneFinder
+from epimatch.scoring.gene_enrichment import GeneEnrichmentScorer
 
 dataset = ATACLoader("data/raw/your_dataset.h5").load()
 
@@ -83,18 +83,18 @@ for gene, p_value, p_adjusted in top_genes:
 ## Command-line interface
 
 ```bash
-atlasx summary path/to/dataset.h5
-atlasx peaks path/to/dataset.h5 -n 20
-atlasx genes path/to/annotation.gtf -n 20
-atlasx version
+epimatch summary path/to/dataset.h5
+epimatch peaks path/to/dataset.h5 -n 20
+epimatch genes path/to/annotation.gtf -n 20
+epimatch version
 ```
 
 ---
 
 ## Project structure
-AtlasX/
+EpiMatch/
 │
-├── atlasx/
+├── epimatch/
 │ ├── core/ # Peak, Gene, Genome, Dataset objects
 │ ├── loader/ # HDF5 (10x-style) dataset loading
 │ ├── io/ # BED file reading
@@ -166,4 +166,4 @@ CSIR-NET JRF (AIR 68)
 
 ## Citation
 
-If AtlasX contributes to your research, please cite the GitHub repository until a formal publication is available.
+If EpiMatch contributes to your research, please cite the GitHub repository until a formal publication is available.

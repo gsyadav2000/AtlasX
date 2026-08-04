@@ -1,4 +1,4 @@
-from atlasx.loader.atac_loader import ATACLoader
+from epimatch.loader.atac_loader import ATACLoader
 
 loader = ATACLoader(
     "data/raw/atac_v1_pbmc_10k_filtered_peak_bc_matrix.h5"

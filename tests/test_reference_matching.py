@@ -1,6 +1,6 @@
 import random
 
-from atlasx.scoring.reference_matching import (
+from epimatch.scoring.reference_matching import (
     build_reference_profiles,
     match_score,
     score_to_pvalue,

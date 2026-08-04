@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "atlasx"
+name = "epimatch"
 version = "0.15.0"
 description = "A Python toolkit for single-cell ATAC-seq gene enrichment scoring, cell clustering, and reference matching."
 readme = "README.md"
@@ -40,4 +40,4 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["atlasx*"]
+include = ["epimatch*"]

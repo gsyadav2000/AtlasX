@@ -1,5 +1,5 @@
-from atlasx.ingestion.geo_discovery import search_geo
-from atlasx.ingestion.manifest import IngestionManifest
+from epimatch.ingestion.geo_discovery import search_geo
+from epimatch.ingestion.manifest import IngestionManifest
 
 MANIFEST_PATH = "data/manifests/ingestion_manifest.json"
 

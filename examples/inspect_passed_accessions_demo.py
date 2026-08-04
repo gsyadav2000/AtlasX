@@ -1,4 +1,4 @@
-from atlasx.ingestion.manifest import IngestionManifest
+from epimatch.ingestion.manifest import IngestionManifest
 
 MANIFEST_PATH = "data/manifests/ingestion_manifest.json"
 

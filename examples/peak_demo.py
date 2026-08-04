@@ -1,4 +1,4 @@
-from atlasx.core.peak import Peak
+from epimatch.core.peak import Peak
 
 peak1 = Peak(
     chromosome="chr1",

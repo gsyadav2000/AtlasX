@@ -1,7 +1,7 @@
 from collections import defaultdict
 
-from atlasx.loader.atac_loader import ATACLoader
-from atlasx.ingestion.qc import check_dataset_quality, check_genome_build_match
+from epimatch.loader.atac_loader import ATACLoader
+from epimatch.ingestion.qc import check_dataset_quality, check_genome_build_match
 
 REFERENCE_PATH = "data/raw/atac_v1_pbmc_10k_filtered_peak_bc_matrix.h5"
 CANDIDATE_PATH = "data/raw/atac_pbmc_5k_v1_filtered_peak_bc_matrix.h5"

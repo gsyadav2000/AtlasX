@@ -6,13 +6,13 @@ import numpy as np
 from scipy.cluster.hierarchy import linkage, fcluster
 from scipy.spatial.distance import squareform
 
-from atlasx.loader.atac_loader import ATACLoader
-from atlasx.database.gene_database import GeneDatabase
-from atlasx.database.chromosome_index import ChromosomeIndex
-from atlasx.database.nearby_gene_finder import NearbyGeneFinder
-from atlasx.scoring.gene_enrichment import GeneEnrichmentScorer
-from atlasx.scoring.cell_similarity import build_cell_profiles, jaccard_similarity_matrix
-from atlasx.scoring.reference_matching import (
+from epimatch.loader.atac_loader import ATACLoader
+from epimatch.database.gene_database import GeneDatabase
+from epimatch.database.chromosome_index import ChromosomeIndex
+from epimatch.database.nearby_gene_finder import NearbyGeneFinder
+from epimatch.scoring.gene_enrichment import GeneEnrichmentScorer
+from epimatch.scoring.cell_similarity import build_cell_profiles, jaccard_similarity_matrix
+from epimatch.scoring.reference_matching import (
     build_reference_profiles,
     build_synthetic_null_distribution,
     match_cell_to_references,
