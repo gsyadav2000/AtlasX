@@ -32,13 +32,13 @@ Reference matching so far is **self-referential**: reference profiles are built 
 ## Installation
 
 ```bash
-python -m pip install git+https://github.com/gsyadav2000/AtlasX.git
+python -m pip install git+https://github.com/gsyadav2000/EpiMatch.git
 ```
 
 Or clone and install in editable mode for development:
 
 ```bash
-git clone https://github.com/gsyadav2000/AtlasX.git
+git clone https://github.com/gsyadav2000/EpiMatch.git
 cd EpiMatch
 python -m pip install -e .
 ```
