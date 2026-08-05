@@ -2,30 +2,38 @@
 
 EpiMatch is an open-source Python toolkit for analyzing single-cell ATAC-seq data: scoring which genes are statistically enriched near each cell's accessible chromatin, clustering cells by that enrichment signal, and matching cells against reference profiles with a proper statistical null model.
 
-It's built as a from-scratch, transparent reimplementation of the core ideas behind [scEpiSearch](https://genome.cshlp.org/content/33/2/218) (Mishra et al., *Genome Research* 2023) — gene-enrichment scoring in place of raw peak comparison, and null-model-calibrated matching in place of fixed thresholds — validated step by step against real PBMC data rather than assumed to work.
+It's built as a from-scratch, transparent reimplementation of the core ideas behind [scEpiSearch](https://genome.cshlp.org/content/33/2/218) (Mishra et al., *Genome Research* 2023) — gene-enrichment scoring in place of raw peak comparison, and null-model-calibrated matching in place of fixed thresholds — validated step by step against real public data, and checked directly against scEpiSearch's own source code, rather than assumed to work.
 
 ---
 
 ## What it actually does right now
 
-**Gene enrichment scoring.** For each cell, ranks which genes are statistically enriched near that cell's most accessible peaks (TF-IDF-weighted peak selection, binomial/hypergeometric significance testing with automatic exact-test fallback for small samples).
+**Gene enrichment scoring.** For each cell, ranks which genes are statistically enriched near that cell's most accessible peaks (TF-IDF-weighted peak selection, binomial significance testing with an exact hypergeometric fallback for small samples).
 
-**Cell clustering.** Groups cells by the overlap in their enriched-gene sets (vectorized Jaccard similarity, hierarchical clustering), then tests each cluster against real marker gene panels.
+**Cell clustering.** Groups cells by their enrichment profiles — either Jaccard similarity over top-enriched gene sets, or Spearman correlation over the full continuous enrichment vector (scEpiSearch's own matching approach) — then hierarchical clustering, tested against real marker gene panels.
 
-**Marker gene enrichment.** Tests whether a cluster's characteristic genes are statistically enriched for known cell-type markers, using panels sourced from the [Seurat PBMC3k reference tutorial](https://satijalab.org/seurat/archive/v4.3/pbmc3k_tutorial) rather than an ad hoc gene list.
+**Marker gene enrichment.** Tests whether a cluster's characteristic genes are statistically enriched for known cell-type markers, using panels sourced from the [Seurat PBMC3k reference tutorial](https://satijalab.org/seurat/archive/v4.3/pbmc3k_tutorial), extended with a small number of markers observed directly in this project's own validated reference profiles (documented in `scoring/marker_panels.py`).
 
-**Reference matching.** Matches a query cell against reference cluster profiles using a synthetic random-gene null model, so p-values aren't biased by how common a reference's cell type happens to be in the training data.
+**Reference matching.** Matches a query cell against reference cluster profiles using a synthetic random-gene null model, so p-values aren't biased by how common a reference's cell type happens to be in the training data. Validated both within one dataset (held-out cells) and across two independent public datasets.
 
-**Peak annotation and file I/O.** Loads 10x-style HDF5 and BED files, parses GENCODE GTF annotation, maps peaks to nearby genes by chromosome-indexed binary search.
+**Auto-updating ingestion pipeline.** Searches NCBI GEO for candidate single-cell datasets, downloads and safely extracts them (path-traversal and size guarded), tries known loaders, and runs automated genome-build and quality checks before anything enters the reference pool — every decision logged to a versioned manifest.
 
-### Validated results (10x Genomics 10k PBMC dataset, all 8,728 cells)
+**Peak annotation and file I/O.** Loads 10x-style HDF5 (including multiome/feature-barcode matrices) and BED/BED.gz files, parses GENCODE GTF annotation, maps peaks to nearby genes by chromosome-indexed binary search.
 
-- Unsupervised clustering, with no cell-type labels given, separates T cells (p = 1.1e-4), CD14+ monocytes and FCGR3A+ monocytes as distinct subclusters (p = 0.024 and 0.024), and NK cells (p = 0.012) — each confirmed against the Seurat PBMC3k marker panel.
-- Reference matching, evaluated on cells held out from reference-building, correctly identifies a cell's true cluster 82.1% of the time (36 points above the 46.1% majority-class baseline), with match confidence tracking correctness (98% of matches statistically significant, 81.9% both correct and significant).
+### Validated results
 
-### Important limitation
+- **Unsupervised clustering** (10x Genomics 10k PBMC dataset, full 8,728 cells), with no cell-type labels given, correctly separates T cells, two monocyte subtypes (CD14+ and FCGR3A+), NK cells, B cells, and plasmacytoid dendritic cells — each confirmed against real marker genes, several found directly in the data during validation rather than assumed from the reference panel alone.
+- **Reference matching, held-out evaluation** (same dataset, train/holdout split): 82.1% accuracy on held-out cells, 36 points above the 46.1% majority-class baseline, with match confidence tracking correctness (98% of matches statistically significant).
+- **Cross-dataset matching**: reference profiles built from the 10k-PBMC dataset, tested against held-out cells from an independent 5k-PBMC dataset (different donor). NK and T-cell signal replicated independently; monocyte replicated after expanding the marker panel with genes observed directly in the reference profile.
+- **GEO ingestion pipeline**: tested live against 15 real accessions discovered by keyword search; 3 genuinely usable datasets ingested end-to-end (real peak data, correct genome build, passing QC), the rest correctly and specifically rejected (unsupported format, oversized download, or confirmed non-ATAC data) rather than silently failing.
+- **scEpiSearch parameter comparison**: obtained and read scEpiSearch's actual source code, confirmed its real parameter values (1,000,000 bp gene-search window, 10,000 peaks per cell, Spearman correlation matching) differ substantially from this project's own defaults. Under a matched, controlled comparison — same cells, same matching method, only these parameters changed — EpiMatch's own parameter values produced a statistically significant dominant cluster where scEpiSearch's confirmed values did not, with the mechanism (dilution toward generic, less cell-type-specific genes) measured directly rather than inferred.
 
-Reference matching so far is **self-referential**: reference profiles are built from a training split of the *same* dataset being queried, not from an independent external atlas. This was the right first step — it validates that the matching architecture (synthetic null model, held-out evaluation, no circularity) works correctly before investing in sourcing real cross-dataset reference data — but it is not yet the cross-dataset, cross-study matching that is scEpiSearch's actual contribution. That remains the next major piece of work.
+### Honest scope
+
+- The scEpiSearch parameter comparison above used a 3,000-cell subsample, not the full dataset, due to memory constraints on the development machine — disclosed, not hidden.
+- Cross-dataset matching so far uses two related PBMC datasets, not scEpiSearch's full external reference pool (millions of cells).
+- scEpiSearch's actual, complete pipeline (their real null model built from merged real-cell queries, their full reference atlas) has not been run end-to-end for a head-to-head benchmark — their code requires a legacy Python/R environment and a 34GB reference data download, neither attempted yet.
+- The ingestion pipeline currently recognizes HDF5 and BED formats only; a meaningful fraction of real GEO submissions use other formats (R objects, sparse matrix triplets, bigWig) not yet supported.
 
 ---
 
@@ -49,7 +57,7 @@ You'll also need a GENCODE annotation matching your data's genome build (see not
 
 ## Quick start
 
-The full worked pipeline — load data, score gene enrichment, cluster cells, test against marker panels — lives in `examples/cell_clustering_demo.py`. Reference matching is in `examples/reference_matching_demo.py`. A minimal enrichment example:
+The full worked pipeline — load data, score gene enrichment, cluster cells, test against marker panels — lives in `examples/cell_clustering_demo.py`. Reference matching is in `examples/reference_matching_demo.py`. Cross-dataset matching is in `examples/build_reference_from_dataset_a.py` and `examples/match_dataset_b_against_saved_reference.py`. The GEO ingestion pipeline is in `examples/run_ingestion_pipeline_demo.py`. A minimal enrichment example:
 
 ```python
 from epimatch.loader.atac_loader import ATACLoader
@@ -96,11 +104,12 @@ EpiMatch/
 │
 ├── epimatch/
 │ ├── core/ # Peak, Gene, Genome, Dataset objects
-│ ├── loader/ # HDF5 (10x-style) dataset loading
+│ ├── loader/ # HDF5 (10x-style, incl. multiome) dataset loading
 │ ├── io/ # BED file reading
 │ ├── database/ # GTF parsing, chromosome indexing, nearby-gene search
 │ ├── annotation/ # Peak-to-gene annotation, CSV/DataFrame export
 │ ├── scoring/ # Gene enrichment, clustering, marker panels, reference matching
+│ ├── ingestion/ # GEO discovery, download, QC, ingestion pipeline
 │ └── cli/ # Command-line interface
 │
 ├── examples/ # Runnable demo scripts for every module
@@ -109,7 +118,8 @@ EpiMatch/
 │ ├── example/ # Small tracked example files
 │ ├── raw/ # Large datasets (gitignored)
 │ ├── processed/ # Gitignored
-│ └── reference/ # GTF annotation files (gitignored)
+│ ├── reference/ # GTF annotation files (gitignored)
+│ └── manifests/ # Ingestion pipeline manifest (tracked - small, human-readable)
 │
 ├── README.md
 ├── pyproject.toml
@@ -130,22 +140,27 @@ The test suite is fast and self-contained — no large dataset downloads require
 
 ### Completed
 
-- HDF5 and BED dataset loading
+- HDF5 (including multiome/feature-barcode) and BED dataset loading
 - GTF parsing with protein-coding filtering
 - Chromosome-indexed nearby-gene search
 - Peak-to-gene annotation, CSV/DataFrame export
 - Command-line interface
-- Gene enrichment scoring (TF-IDF weighting, binomial/hypergeometric significance)
+- Gene enrichment scoring (TF-IDF weighting, binomial significance with exact fallback)
 - Batch enrichment across cell populations
-- Marker gene set enrichment (Seurat PBMC3k-sourced panels)
-- Cell-to-cell similarity and hierarchical clustering
+- Marker gene set enrichment (Seurat PBMC3k-sourced panels, extended with validated additions)
+- Cell-to-cell similarity and hierarchical clustering (Jaccard and Spearman-correlation methods)
 - Reference matching with bias-free synthetic null model, validated on held-out data
+- Cross-dataset reference matching, validated against an independent public dataset
+- Automatically updating reference database (GEO discovery, download, safe extraction, QC gating, versioned manifest) — tested live against 15 real accessions
+- Direct comparison against scEpiSearch's real source code and confirmed parameter values
 
 ### Planned
 
-- Cross-dataset reference matching against an independent external atlas
-- Automatically updating reference database (scheduled ingestion from public repositories, with QC gating before any dataset is added)
+- Full-scale (non-subsampled) run of the scEpiSearch parameter comparison, pending more available memory
+- Head-to-head benchmark against scEpiSearch's actual, complete pipeline (their real reference pool and null model)
+- Broader ingestion format support (sparse matrix triplets, R objects, bigWig)
 - Approximate nearest-neighbor search for scaling matching to large reference pools
+- Scheduled/automatic execution of the ingestion pipeline (currently run manually)
 - PyPI release
 
 ---
@@ -161,6 +176,8 @@ MIT License
 Ghanshyam Yadav
 
 CSIR-NET JRF (AIR 68)
+
+PhD, IIIT Delhi, under the guidance of Dr. Vibhor Kumar
 
 ---
 
